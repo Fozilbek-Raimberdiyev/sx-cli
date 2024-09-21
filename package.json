@@ -1,6 +1,6 @@
 {
   "name": "sx-cli-laravel-vue",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": " dist/index.js",
   "description": "Laravel va Vue frameworklaridagi monolith arxitektura loyihalarni boshqarish uchun mo'ljallangan CLI tool",
   "license": "MIT",
