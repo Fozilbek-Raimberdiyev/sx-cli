@@ -1,6 +1,6 @@
 {
   "name": "@simplex-itc/sx-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": " dist/index.js",
   "description": "Laravel va Vue frameworklaridagi monolith arxitektura loyihalarni boshqarish uchun mo'ljallangan CLI tool",
   "license": "MIT",
