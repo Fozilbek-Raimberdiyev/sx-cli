@@ -3,7 +3,7 @@ import { Command } from "commander";
 import inquirer from "inquirer";
 const program = new Command();
 import { tailwindReactSetup, tailwindVueSetup } from "./tailwind";
-
+import { laravelVueSetup } from "./laravel"
 // setup tailwind
 program
   .command("tailwind:setup")
@@ -40,5 +40,27 @@ program
         break;
     }
   });
+
+// setup vue 3 in laravel
+program
+  .command("laravel:vue-setup")
+  .description("setup vue 3 in laravel")
+  .action(async () => {
+    const projectPath = process.cwd();
+    laravelVueSetup(projectPath)
+    // tailwindLaravelVueSetup(projectPath, "yarn");
+  });
+
+// setup react in laravel
+// program
+//   .command("react:setup")
+//   .description("setup react in laravel")
+//   .action(async () => {
+
+//     const projectPath = process.cwd();
+//     tailwindLaravelReactSetup(projectPath, "yarn");
+//   });
+
+
 
 program.parse(process.argv);

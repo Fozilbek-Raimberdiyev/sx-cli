@@ -1,1 +1,1 @@
-console.log("hello from laravel");
+export  {laravelVueSetup} from "./vue"
