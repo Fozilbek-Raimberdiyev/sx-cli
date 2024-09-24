@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Generate Entity using SX-CLI</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
     </style>
@@ -22,13 +22,16 @@
 </head>
 
 <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"
+        integrity="sha512-DdX/YwF5e41Ok+AI81HI8f5/5UsoxCVT9GKYZRIzpLxb8Twz4ZwPPX+jQMwMhNQ9b5+zDEefc+dcvQoPWGNZ3g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script>
     <script src="https://unpkg.com/@primevue/themes/umd/aura.min.js"></script>
-    <div class="w-full h-screen pt-4" id="app" v-cloak>
+    <div class="w-full h-screen pt-12" id="app" v-cloak>
         <div class="container mx-auto px-80">
-            <h1 class="capitalize text-2xl">
+            <h1 class="capitalize text-3xl font-semibold" style="color: #10B981;">
                 {{pathName}}
             </h1>
 
@@ -36,65 +39,204 @@
                 <div class="grid grid-cols-12 gap-5 mb-6">
                     <div class="col-span-6">
                         <div class="flex flex-col gap-2">
-                            <label for="entityname">Entity name</label>
-                            <p-input size="small" id="entityname" v-model="pathName" aria-describedby="username-help" />
-                            <small id="username-help">Enter your username to reset your password.</small>
+                            <label class="font-regular" for="entityname">Entity name</label>
+                            <p-input size="small" id="entityname" v-model="entityName"
+                                aria-describedby="username-help" />
                         </div>
                     </div>
 
                     <div class="col-span-6">
                         <div class="flex flex-col gap-2">
-                            <label for="apiidsingular">Api ID (singular)</label>
-                            <p-input size="small" id="apiidsingular" v-model="pathName"
+                            <label class="font-regular" for="apiidsingular">Api ID (singular)</label>
+                            <p-input size="small" id="apiidsingular" v-model="singularEntityName"
                                 aria-describedby="username-help" />
                         </div>
                     </div>
                     <div class="col-span-6"></div>
                     <div class="col-span-6">
                         <div class="flex flex-col gap-2">
-                            <label for="apiidplural">Api ID (plural)</label>
-                            <p-input size="small" id="apiidplural" v-model="pathName"
+                            <label class="font-regular" for="apiidplural">Api ID (plural)</label>
+                            <p-input size="small" id="apiidplural" v-model="pluralEntityName"
                                 aria-describedby="username-help" />
                         </div>
                     </div>
                 </div>
                 <divider></divider>
-                <p-button @click="isVisibleModal=true" size="small" badgeSeverity="info"> Create fields </p-button>
-
             </form>
+
+            <!-- migration field list -->
+            <div>
+                <div class="flex justify-between items-center">
+                    <p class="text-surface-500 dark:text-surface-400 mb-4 text-lg font-semibold">Fields</p>
+                    <p-button @click="isVisibleModal=true" size="small" badgeSeverity="info"> Create fields </p-button>
+                </div>
+
+                <p-table v-if="migrationFields?.length" :value="migrationFields" tableStyle="min-width: 50rem">
+                    <p-column field="name" header="Name"></p-column>
+                    <p-column field="type" header="Type"></p-column>
+                    <p-column style="width: 4rem" field="actions" header="Actions">
+                        <template #body="{ item, index }">
+                            <div class="flex items-center gap-2">
+                                <p-button style="width: 100px;" @click="migrationFields.splice(index, 1)" size="small"
+                                    label="Delete" severity="danger" rounded size="small">
+                                </p-button>
+                                <p-button style="width: 100px;" @click="toggleField(index)" size="small" label="Edit"
+                                    severity="success" rounded size="small">
+                                </p-button>
+                            </div>
+                        </template>
+
+                    </p-column>
+                </p-table>
+                <div class="flex justify-end mt-8 gap-1" v-if="migrationFields?.length">
+                    <p-button size="small" severity="secondary">
+                        Cancel
+                    </p-button>
+                    <p-button size="small" :loading="isLoading" severity="info" @click="createEntity">
+                        Create entity
+                    </p-button>
+
+                    </p-button>
+                </div>
+
+            </div>
         </div>
-        <p-dialog v-model:visible="isVisibleModal" modal header="Edit Profile" :style="{ width: '25rem' }">
-            <span class="text-surface-500 dark:text-surface-400 block mb-8">Update your information.</span>
-            <div class="flex items-center gap-4 mb-4">
-                <label for="username" class="font-semibold w-24">Username</label>
-                <p-input size="small" id="username" class="flex-auto" autocomplete="off" />
+        <p-dialog @hide="reset" v-model:visible="isVisibleModal" modal header="Create field"
+            :style="{ width: '50rem' }">
+            <span class="text-surface-500 dark:text-surface-400 block mb-8">Define the field.</span>
+            <div class="grid grid-cols-12 gap-5">
+                <div class="col-span-6">
+                    <div class="flex flex-col gap-2">
+                        <label for="fieldname">Enter the name of the field</label>
+                        <p-input type="text" id="fieldname" v-model="fieldName" aria-describedby="field name" />
+                    </div>
+                </div>
+                <div class="col-span-6">
+                    <div class="flex flex-col gap-2">
+                        <label for="fieldname">Enter the name of the field</label>
+                        <p-select filter :options="migrationTypes" placeholder="Select field type" style="height: 40px;"
+                            v-model="selectedType" aria-describedby="field type">
+                        </p-select>
+                    </div>
+                </div>
             </div>
-            <div class="flex items-center gap-4 mb-8">
-                <label for="email" class="font-semibold w-24">Email</label>
-                <p-input size="small" id="email" class="flex-auto" autocomplete="off" />
-            </div>
-            <div class="flex justify-end gap-2">
-                <p-button size="small" type="button" label="Cancel" severity="secondary" @click="visible = false"></p-button>
-                <p-button size="small" type="button" label="Save" @click="isVisibleModal = false"></p-button>
+            <div class="flex justify-end gap-2 mt-4">
+                <p-button size="small" type="button" severity="secondary" label="Cancel" @click="reset"></p-button>
+                <p-button v-if="isClickedUpdate" size="small" type="button" label="Update"
+                    @click="updateField(currentIndex)"></p-button>
+                <p-button v-else size="small" type="button" label="Save" @click="addField"></p-button>
             </div>
         </p-dialog>
     </div>
 
     <script type="module">
-        const { createApp, ref } = Vue;
+        const { createApp, ref, onMounted } = Vue;
         const app = createApp({
             setup() {
+                const isLoading = ref(false);
+                const projectPath = new URLSearchParams(window.location.search).get('projectPath');
                 const pathName = location.pathname.split("/")[2];
-                const message = ref('Hello Vue!');
-                const count = ref(1);
-                const date = ref();
+                const entityName = ref(pathName);
                 const isVisibleModal = ref(false);
+                const migrationTypes = ref([]);
+                const selectedType = ref(null);
+                const fieldName = ref("");
+                const migrationFields = ref([]);
+                const isClickedUpdate = ref(false);
+                const currentIndex = ref(0);
+                const singularEntityName = ref("");
+                const pluralEntityName = ref("");
+
+                async function createEntity() {
+                    try {
+                        isLoading.value = true;
+                        const body = {
+                            title: entityName.value,
+                            apiIdSingular: singularEntityName.value,
+                            apiIdPlural: pluralEntityName.value,
+                            fields: migrationFields.value,
+                            projectPath
+                        }
+                        await axios.post('/api/laravel/create-entity', body);
+                        isLoading.value = false;
+                    }
+                    catch (e) {
+                        isLoading.value = false;
+                    }
+                }
+
+                function reset() {
+                    isVisibleModal.value = false;
+                    fieldName.value = "";
+                    selectedType.value = null;
+                    isClickedUpdate.value = false;
+                    currentIndex.value = -1;
+                }
+                function toggleField(index) {
+                    currentIndex.value = index;
+                    isClickedUpdate.value = true;
+                    isVisibleModal.value = true;
+                    fieldName.value = migrationFields.value[index].name;
+                    selectedType.value = migrationFields.value[index].type;
+                }
+
+                function updateField(index) {
+                    migrationFields.value[index].name = fieldName.value;
+                    migrationFields.value[index].type = selectedType.value;
+                    isVisibleModal.value = false;
+                    fieldName.value = "";
+                    selectedType.value = null;
+                    isClickedUpdate.value = false;
+                }
+                isVisibleModal.value = false;
+                fieldName.value = "";
+                selectedType.value = null;
+                function addField() {
+                    migrationFields.value.push({
+                        name: fieldName.value,
+                        type: selectedType.value,
+                        actions: "actions"
+                    })
+                    isVisibleModal.value = false;
+                    fieldName.value = "";
+                    selectedType.value = null;
+                    isClickedUpdate.value = false;
+
+                }
+                async function getMigrationTypes() {
+                    try {
+                        const res = await axios.get('/api/laravel/migration-types');
+                        migrationTypes.value = res.data;
+                    }
+
+                    catch (e) {
+                        console.error(e)
+                    }
+                }
+
+                onMounted(() => {
+                    getMigrationTypes();
+                })
                 return {
-                    message,
-                    count,
-                    date,
+
                     pathName,
-                    isVisibleModal
+                    isVisibleModal,
+                    migrationTypes,
+                    selectedType,
+                    migrationFields,
+                    addField,
+                    fieldName,
+                    toggleField,
+                    updateField,
+                    currentIndex,
+                    isClickedUpdate,
+                    singularEntityName,
+                    pluralEntityName,
+                    entityName,
+                    reset,
+                    createEntity,
+                    isLoading,
+                    projectPath
                 }
             }
         });
@@ -109,6 +251,9 @@
         app.component('divider', PrimeVue.Divider)
         app.component('p-button', PrimeVue.Button)
         app.component('p-dialog', PrimeVue.Dialog)
+        app.component('p-select', PrimeVue.Select)
+        app.component('p-table', PrimeVue.DataTable)
+        app.component('p-column', PrimeVue.Column)
         app.mount('#app');
     </script>
 </body>

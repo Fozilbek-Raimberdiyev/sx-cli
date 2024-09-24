@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import inquirer from "inquirer";
+import { execSync } from "child_process";
 const program = new Command();
 import { tailwindReactSetup, tailwindVueSetup } from "./tailwind";
 import { laravelVueSetup } from "./laravel"
@@ -60,6 +61,13 @@ program
 //     const projectPath = process.cwd();
 //     tailwindLaravelReactSetup(projectPath, "yarn");
 //   });
+
+// generate entity
+program.command("generate-entity <entityName>").description("generate entity").action(async (entityName) => {
+  // open in browser
+  const url = `http://localhost:3000/configure-entity/${entityName}?projectPath=${process.cwd()}`;
+  execSync(`start ${url}`);
+})
 
 
 
