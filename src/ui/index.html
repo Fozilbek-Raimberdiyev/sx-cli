@@ -197,8 +197,9 @@
             reset();
             isLoading.value = false;
           } catch (e) {
-            show("error", "Error", e.response.data.message);
             isLoading.value = false;
+            show("error", "Error", e.response.data.message);
+
           }
         }
 
