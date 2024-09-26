@@ -1,8 +1,3 @@
-import { generateService } from "./helpers/services";
-import { generateRoute } from "./helpers/routes";
-import { generateVueComponent } from "./helpers/components";
-export default {
-  generateService,
-  generateRoute,
-  generateVueComponent,
-};
+export { generateService } from "./services/services";
+export { generateRoute } from "./services/route.service.";
+export { generateVueComponent } from "./services/component.service.";

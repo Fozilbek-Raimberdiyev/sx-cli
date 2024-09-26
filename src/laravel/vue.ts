@@ -13,7 +13,7 @@ export async function laravelVueSetup(
         const { packageManager } = await inquirer
             .prompt([{ type: "list", name: "packageManager", message: "Package managerni tanlang:", choices: ["npm", "yarn", "pnpm"] }]);
         // install vue
-        const installTemplate = packageManager === "yarn" ? "yarn add vue" : packageManager === "pnpm" ? "pnpm add vue" : "npm install vue";
+        const installTemplate = packageManager === "yarn" ? "yarn add vue vue-router ant-design-vue pinia vue-i18n@10" : packageManager === "pnpm" ? "pnpm add vue vue-router ant-design-vue pinia vue-i18n@10" : "npm install vue vue-router ant-design-vue pinia vue-i18n@10";
         execSync(installTemplate, { stdio: "inherit", cwd: projectPath });
         // install vite as dev dependency
         const installTemplate2 = packageManager === "yarn" ? "yarn add -D vite" : packageManager === "pnpm" ? "pnpm add --save-dev vite" : "npm install  vite --save-dev";

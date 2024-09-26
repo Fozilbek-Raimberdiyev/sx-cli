@@ -8,19 +8,19 @@ export function generateRoute(
   groupName: string = "/admin"
 ) {
   const routePath = path.join(projectPath, "routes", "api.php");
-  const template = `use App\\Http\\Controllers\\${replaceSlashes(
+  const template = `use App\\Http\\Controllers${replaceSlashes(
     groupName
   )}\\${entityName}Controller;
 //  ${apiIdPlural} ro'yxatini olish
-Route::get('${groupName}/${apiIdPlural}', [${entityName}Controller::class, 'index']);  
+Route::get('${groupName.toLocaleLowerCase()}/${apiIdPlural}', [${entityName}Controller::class, 'index']);  
 // Yangi ${entityName.toLocaleLowerCase()} qo'shish       
-Route::post('${groupName}/${apiIdPlural}', [${entityName}Controller::class, 'store']);  
+Route::post('${groupName.toLocaleLowerCase()}/${apiIdPlural}', [${entityName}Controller::class, 'store']);  
 // Muayyan ${entityName.toLocaleLowerCase()} olish
-Route::get('${groupName}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'show']);  
+Route::get('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'show']);  
 // Muayyan ${entityName.toLocaleLowerCase()} yangilash
-Route::put('${groupName}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'update']); 
+Route::put('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'update']); 
 // Muayyan ${entityName.toLocaleLowerCase()} o'chirish
-Route::delete('${groupName}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'destroy']); 
+Route::delete('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'destroy']); 
 `;
 
   // Faylni o'qish va qo'shish
@@ -34,10 +34,10 @@ Route::delete('${groupName}/${apiIdPlural}/{id}', [${entityName}Controller::clas
     if (
       !data.includes(
         "use App\\Http\\Controllers\\" +
-          replaceSlashes(groupName) +
-          "\\" +
-          entityName +
-          "Controller;"
+        replaceSlashes(groupName) +
+        "\\" +
+        entityName +
+        "Controller;"
       )
     ) {
       // Faylga yangi marshrutni qo'shish

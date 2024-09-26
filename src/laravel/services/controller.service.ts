@@ -23,7 +23,7 @@ namespace App\\Http\\Controllers${replaceSlashes(groupName)};
 use App\\Models${replaceSlashes(groupName)}\\${entityName};
 use App\\Http\\Requests${replaceSlashes(groupName)}\\${entityName}FormRequest;
 use Illuminate\\Http\\Request;
-use App\Http\Controllers\Controller;
+use App\\Http\\Controllers\\Controller;
 class ${entityName}Controller extends Controller
 {/**
  * ${lowerCasedEntityName} ro'yxatini ko'rsatadi.

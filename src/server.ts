@@ -27,6 +27,7 @@ app.post("/api/laravel/create-entity", async (req: Request, res: Response) => {
     generateController,
     generateRoute,
   } = await import("./laravel");
+  const { generateVueComponent } = await import("./vue")
   generateMigration(
     { apiIdSingular: entity.apiIdSingular, apiIdPlural: entity.apiIdPlural },
     entity.fields,
@@ -51,6 +52,7 @@ app.post("/api/laravel/create-entity", async (req: Request, res: Response) => {
     entity.projectPath,
     entity.groupName
   );
+  generateVueComponent(entity.title, entity.projectPath, entity.groupName, entity.apiIdSingular, entity.apiIdPlural, entity.fields)
   return res.status(200).send({ success: true });
 });
 

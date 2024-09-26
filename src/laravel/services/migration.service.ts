@@ -5,7 +5,7 @@ import { ensureDirectoryExists } from "../../utils/folder";
 
 export function generateMigration(
   entityName: { apiIdSingular: string; apiIdPlural: string },
-  fields: { name: string; type: string }[],
+  fields: { name: string; type: string, isNullable: boolean }[],
   projectPath: string
 ) {
   const migrationPath = path.join(
@@ -33,8 +33,8 @@ return new class extends Migration {
             function (Blueprint $table) {
                 $table->id();
                 ${fields
-                  .map((field) => ` $table->${field.type}('${field.name}');`)
-                  .join("\n")}
+        .map((field) => ` $table->${field.type}('${field.name}')${field.isNullable ? "->nullable();" : ";"}`)
+        .join("\n")}
                 $table->timestamps();
             }
         );
