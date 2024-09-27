@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { ensureDirectoryExists } from "../../utils/folder";
+import { formatPhpFile } from "../../utils/prettier";
 // generate migration with fields for laravel
 
 export function generateMigration(
@@ -55,6 +56,7 @@ return new class extends Migration {
     ensureDirectoryExists(migrationPath);
     // if the migration file does not exist, create it
     fs.writeFileSync(migrationPath, template, "utf8");
+    formatPhpFile(migrationPath);
   }
 }
 

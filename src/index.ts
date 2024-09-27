@@ -5,6 +5,15 @@ import { execSync } from "child_process";
 const program = new Command();
 import { tailwindReactSetup, tailwindVueSetup, tailwindLaravelVueSetup } from "./tailwind";
 import { laravelVueSetup } from "./laravel"
+
+// start dev server
+program
+  .command("start server")
+  .description("start dev server")
+  .action(async () => {
+    execSync("yarn dev", { stdio: "inherit", cwd: __dirname });
+  });
+
 // setup tailwind
 program
   .command("tailwind:setup")
@@ -68,6 +77,8 @@ program.command("generate-entity <entityName>").description("generate entity").a
   const url = `http://localhost:3000/configure-entity/${entityName}?projectPath=${process.cwd()}`;
   execSync(`start ${url}`);
 })
+
+
 
 
 

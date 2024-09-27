@@ -26,7 +26,7 @@ app.post("/api/laravel/create-entity", async (req: Request, res: Response) => {
     generateController,
     generateRoute,
   } = await import("./laravel");
-  const { generateVueComponent } = await import("./vue");
+  const { generateVueComponent, generateRoute: generateVueRoute } = await import("./vue");
   generateMigration(
     { apiIdSingular: entity.apiIdSingular, apiIdPlural: entity.apiIdPlural },
     entity.fields,
@@ -51,8 +51,9 @@ app.post("/api/laravel/create-entity", async (req: Request, res: Response) => {
     entity.projectPath,
     entity.groupName
   );
-  generateVueComponent(entity.title, entity.projectPath, entity.groupName, entity.apiIdSingular, entity.apiIdPlural, entity.fields)
-  return res.status(200).send({ success: true });
+  generateVueComponent(entity.title, entity.projectPath, entity.groupName, entity.apiIdSingular, entity.apiIdPlural, entity.fields);
+  generateVueRoute(entity.title, entity.apiIdPlural, entity.projectPath, entity.groupName, entity.apiIdSingular);
+  return res.status(400).send({ success: true });
 });
 app.listen(3000, async () => {
   console.log("Server ishlamoqda: http://localhost:3000");

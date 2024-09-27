@@ -2,6 +2,7 @@ import { ensureDirectoryExists } from "../../utils/folder";
 import fs from "fs";
 import path from "path";
 import { replaceSlashes } from "../../utils/formatter";
+import { formatPhpFile } from "../../utils/prettier";
 export function generateFormRequest(
   entityName: string,
   fields: { name: string; type: string; validationRules: string }[],
@@ -64,4 +65,5 @@ class ${entityName}FormRequest extends FormRequest
 
   ensureDirectoryExists(formRequestPath);
   fs.writeFileSync(formRequestPath, template, "utf8");
+  formatPhpFile(formRequestPath);
 }

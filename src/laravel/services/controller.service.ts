@@ -1,5 +1,6 @@
 import { ensureDirectoryExists } from "../../utils/folder";
 import { replaceSlashes } from "../../utils/formatter";
+import { formatPhpFile } from "../../utils/prettier";
 import fs from "fs";
 import path from "path";
 export function generateController(
@@ -84,4 +85,5 @@ public function index(Request $request)
 `;
   ensureDirectoryExists(controllerPath);
   fs.writeFileSync(controllerPath, template, "utf8");
+  formatPhpFile(controllerPath);
 }

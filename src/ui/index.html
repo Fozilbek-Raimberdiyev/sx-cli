@@ -30,6 +30,12 @@
   <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script>
   <script src="https://unpkg.com/@primevue/themes/umd/aura.min.js"></script>
   <div class="w-full h-screen pt-12" id="app" v-cloak>
+    <div v-if="isLoading"
+      class="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center z-10 bg-[rgba(0,0,0,0.2)]">
+      <p-progress-spinner style="width: 50px; height: 50px" strokeWidth="8" fill="transparent" animationDuration=".5s"
+        aria-label="Custom ProgressSpinner"></p-progress-spinner>
+    </div>
+
     <p-toast></p-toast>
     <div class="container mx-auto px-80">
       <h1 class="capitalize text-3xl font-semibold" style="color: #10b981">
@@ -193,7 +199,7 @@
               groupName: groupName.value,
             };
             await axios.post("/api/laravel/create-entity", body);
-            show();
+            show('success', 'Success', 'Entity created successfully');
             reset();
             isLoading.value = false;
           } catch (e) {
@@ -322,6 +328,7 @@
     app.component("p-column", PrimeVue.Column);
     app.component("p-toast", PrimeVue.Toast);
     app.component("p-toggle-switch", PrimeVue.ToggleSwitch);
+    app.component("p-progress-spinner", PrimeVue.ProgressSpinner);
     app.mount("#app");
   </script>
 </body>

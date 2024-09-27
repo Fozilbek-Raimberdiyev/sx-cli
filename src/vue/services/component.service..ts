@@ -1,26 +1,31 @@
 import fs from "fs";
 import path from "path";
 import { ensureDirectoryExists } from "../../utils/folder";
+import { formatVueFile } from "../../utils/prettier";
 export function generateVueComponent(entityName: string, projectPath: string, groupName: string, apiIdSingular: string, apiIdPlural: string, fields: any[]) {
+  const tempFields = [...fields, { name: "actions", type: "string", width: "200px" }];
   // component path
-  const componentFolderPath = path.join(projectPath, "resources", "js", "modules", groupName, `${entityName}`);
+  const componentFolderPath = path.join(projectPath, "resources", "vue", "modules", groupName.toLocaleLowerCase(), `${apiIdPlural}`);
   // home page
   const indexTemplate = `
   <script setup lang="ts">
   import { ref, onMounted} from "vue";
+  import {useRouter} from "vue-router";
+  import {Button} from "ant-design-vue";
   import axios from "axios";
   import {AxiosResponse} from "axios";
   import {Table} from "ant-design-vue";
+  const router = useRouter();
   const isLoading = ref(false);
   const data = ref<any[]>([]);
   const page = ref(1);
   const limit = ref(50);
-  const fields = ${JSON.stringify(fields, null, 2)};
-  const columns = ref(${JSON.stringify(fields.map((el) => {
+  const columns = ref(${JSON.stringify((tempFields as any).map((el: any) => {
     return {
       title: el.name,
       dataIndex: el.name,
-      key: el.name
+      key: el.name,
+      width: el.width
     }
   }), null, 2)});
   // get ${apiIdPlural}
@@ -37,13 +42,40 @@ export function generateVueComponent(entityName: string, projectPath: string, gr
   }
   }
 
+  // delete ${apiIdSingular}
+async function delete${apiIdSingular.slice(0).toUpperCase()}(id: number) {
+    try {
+        isLoading.value = true;
+        const res: AxiosResponse = await axios.delete("/api${groupName.toLocaleLowerCase()}/${apiIdPlural}/" + id);
+        get${apiIdPlural.slice(0).toUpperCase()}();
+        isLoading.value = false;
+    } catch (e) {
+        isLoading.value = false;
+        console.error(e);
+    }
+}
+
   onMounted(() => {
     get${apiIdPlural.slice(0).toUpperCase()}();
   })
   </script>
   <template>
-    <div class="">
-      <Table :loading="isLoading" :columns :dataSource="data"></Table>
+    <div class="m-2">
+    <div class="flex justify-end">
+        <Button
+          @click="router.push('${groupName.toLocaleLowerCase()}/${apiIdPlural}/create')"
+          type="primary"
+          >Create</Button
+        >
+      </div>
+      <Table :loading="isLoading" :columns :dataSource="data">
+      <template #bodyCell="{ column, text, record }">
+                <div class="flex items-center gap-1" v-if="column.dataIndex === 'actions'">
+                    <Button @click="router.push('${groupName.toLocaleLowerCase()}/${apiIdPlural}/' + record.id+'/update')" type="primary">Edit</Button>
+                    <Button @click="delete${apiIdSingular.slice(0).toUpperCase()}(record.id)" danger>Delete</Button>
+                </div>
+            </template>
+      </Table>
     </div>
   </template>
   `;
@@ -76,7 +108,7 @@ export function generateVueComponent(entityName: string, projectPath: string, gr
     });
 isLoading.value = false;
     }
-    catch(e) {
+    catch(e:any) {
     isLoading.value = false;
     if (e.status == 422) return message.error(e.response.data.message);
     message.error("Произошла ошибка");
@@ -93,7 +125,7 @@ isLoading.value = false;
     });
     isLoading.value = false;
     }
-    catch(e) {
+    catch(e:any) {
     isLoading.value = false;
     if (e.status == 422) return message.error(e.response.data.message);
     message.error("Произошла ошибка");
@@ -113,39 +145,36 @@ isLoading.value = false;
   isLoading.value = false;
   }
 
-  catch(e) {
+  catch(e:any) {
   isLoading.value = false;
-  console.log(e)
+  console.error(e)
   }
    }
-
   onMounted(() => {
   getById();
   })
   </script>
   <template>
-  <div>
+  <div class="m-2">
   <h1>${entityName}</h1>
   <Form @finish="route.params.id ? update${entityName}() : create${entityName}()"  ref="formRef" :model="formState" >
   <div class="grid grid-cols-12 gap-4 px-5 mt-6 w-full">
   ${fields.map((el) => {
     return `<div class="col-span-4 max-md:max-w-full">
           <FormItem ref="${el.name}" name="${el.name}">
-            <p class="text-sm  max-md:max-w-full font-regular">
+            <p class="text-sm  max-md:max-w-full font-regular capitalize">
               ${el.name}
             </p>
             <Input v-model:value="formState.${el.name}" class="mt-2" placeholder=""></Input>
           </FormItem>
         </div>`
-  })}
-    
+  }).join("")}
   </div>
   <div class="flex items-center justify-end gap-1">
     <Button>Cancel</Button>
-    <Button html-type="submit" type="primary">{{route.params.id ? "Update" : "Create"}}</Button>
+    <Button :loading="isLoading" html-type="submit" type="primary">{{route.params.id ? "Update" : "Create"}}</Button>
   </div>
   </Form>
-  
   </div>
   </template>
   `
@@ -156,6 +185,7 @@ isLoading.value = false;
 
 
   fs.writeFileSync(indexComponentPath, indexTemplate, "utf8");
+  formatVueFile(indexComponentPath);
   // log to console that component was created successfully with green color
   console.log(`\x1b[32m${componentFolderPath}\Index.vue component created successfully!\x1b[0m`);
 
@@ -163,7 +193,32 @@ isLoading.value = false;
   const addOrUpdateComponentPath = path.join(componentFolderPath, "AddOrUpdate.vue");
   ensureDirectoryExists(addOrUpdateComponentPath);
   fs.writeFileSync(addOrUpdateComponentPath, addOrUpdateTemplate, "utf8");
+  formatVueFile(addOrUpdateComponentPath);
   // log to console that component was created successfully with green color
   console.log(`\x1b[32m${componentFolderPath}\AddOrUpdate.vue component created successfully!\x1b[0m`);
+  // import ${entityName}AddOrUpdate from "@/modules/${groupName}/${apiIdPlural}/AddOrUpdate.vue";
+  // generate pages
+  const pagesIndex = `
+  <script setup lang="ts">
+  import ${entityName}Index from "@/modules${groupName}/${apiIdPlural}/Index.vue";
+  </script>
+  <template>
+  <${entityName}Index/>
+  </template>
+  `
+  ensureDirectoryExists(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/Index.vue`);
+  fs.writeFileSync(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/Index.vue`, pagesIndex, "utf8");
+  formatVueFile(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/Index.vue`);
 
+  const pagesAddOrUpdate = `
+  <script setup lang="ts">
+  import ${entityName}AddOrUpdate from "@/modules${groupName}/${apiIdPlural}/AddOrUpdate.vue";
+  </script>
+  <template>
+  <${entityName}AddOrUpdate/>
+  </template>
+  `;
+  ensureDirectoryExists(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/AddOrUpdate.vue`);
+  fs.writeFileSync(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/AddOrUpdate.vue`, pagesAddOrUpdate, "utf8");
+  formatVueFile(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/AddOrUpdate.vue`);
 }

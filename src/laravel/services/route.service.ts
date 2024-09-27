@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { replaceSlashes } from "../../utils/formatter";
+import { formatPhpFile } from "../../utils/prettier"
 export function generateRoute(
   entityName: string,
   apiIdPlural: string,
@@ -49,6 +50,7 @@ Route::delete('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityN
           return;
         }
         console.log("Marshrut muvaffaqiyatli qo'shildi!");
+        formatPhpFile(routePath);
       });
     } else {
       console.log("Marshrut allaqachon mavjud.");

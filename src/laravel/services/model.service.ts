@@ -2,6 +2,7 @@ import fs from "fs";
 import { ensureDirectoryExists } from "../../utils/folder";
 import path from "path";
 import { replaceSlashes } from "../../utils/formatter";
+import { formatPhpFile } from "../../utils/prettier"
 export function generateModel(
   modelName: string,
   fields: { name: string; type: string }[],
@@ -25,11 +26,12 @@ class ${modelName} extends Model
 {
     use HasFactory;
      protected $fillable = [${fields
-       .map((field) => `"${field.name}"`)
-       .join(",")}];
+      .map((field) => `"${field.name}"`)
+      .join(",")}];
 }
     `;
 
   ensureDirectoryExists(modelPath);
   fs.writeFileSync(modelPath, template, "utf8");
+  formatPhpFile(modelPath);
 }
