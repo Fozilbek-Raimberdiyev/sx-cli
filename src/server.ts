@@ -56,5 +56,5 @@ app.post("/api/laravel/create-entity", async (req: Request, res: Response) => {
   return res.status(400).send({ success: true });
 });
 app.listen(3000, async () => {
-  console.log("Server ishlamoqda: http://localhost:3000");
+  console.log("Server is running on port 3000");
 });
