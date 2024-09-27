@@ -37,9 +37,42 @@ export const bladeContent = `
 </head>
 <body>
     <div id="app"></div>
-   @vite('resources/js/app.ts')
+   @vite('resources/vue/main.ts')
 </body>
 </html>
+`;
+
+
+export const shimsContent = `
+declare module "*.vue" {
+  import { DefineComponent } from "vue";
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
+}
+`;
+
+
+export const tsConfig = `
+{
+  "compilerOptions": {
+    "target": "esnext", // or "es2020" or "es2022"
+    "module": "esnext", // or "es2020" or "es2022"
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["resources/vue/*"]
+    },
+    "types": ["vite/client"], // Include Vite types
+    "noEmit": true
+  },
+  "include": ["resources/vue/**/*.ts", "resources/vue/**/*.d.ts", "resources/vue/**/*.tsx", "resources/vue/**/*.vue"],
+  "exclude": ["node_modules"]
+}
+
 `;
 
 export const routeConfig = `Route::get('{any?}', fn() => view("app"))->where("any", ".*");`;

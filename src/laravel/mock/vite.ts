@@ -5,14 +5,14 @@ import laravel from "laravel-vite-plugin";
 export default defineConfig({
     plugins: [vue(),laravel({
             input: [
-                "resources/js/app.ts",
+                "resources/vue/main.ts",
             ],
             refresh: true,
         })
 ],
     resolve: {
         alias: {
-            '@': '/resources/js',
+            '@': '/resources/vue',
         },
     }
 });

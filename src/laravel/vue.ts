@@ -4,7 +4,8 @@ import path from "path";
 import inquirer from "inquirer";
 import { execSync } from "child_process"
 import { viteVueConfig } from "./mock/vite"
-import { appTsContent, appVueContent, bladeContent } from "./mock/vue"
+import { appTsContent, appVueContent, bladeContent, shimsContent, tsConfig } from "./mock/vue"
+import { ensureDirectoryExists } from "../utils/folder"
 export async function laravelVueSetup(
     projectPath: string
 ) {
@@ -24,13 +25,25 @@ export async function laravelVueSetup(
         // create vite config
         fs.writeFileSync(`${projectPath}/vite.config.js`, viteVueConfig);
         console.log("Vite configuration created.");
-        fs.writeFileSync(`${projectPath}/resources/js/app.ts`, appTsContent);
-        console.log("Vue entry point setup in resources/js/app.ts.");
-        fs.writeFileSync(`${projectPath}/resources/js/App.vue`, appVueContent);
+        ensureDirectoryExists(`${projectPath}/resources/vue/shims-vue.d.ts`);
+        // create shim-vue.d.ts
+        fs.writeFileSync(`${projectPath}/resources/vue/shims-vue.d.ts`, shimsContent);
+        console.log("shims-vue.d.ts created.");
+        // create ts config
+        fs.writeFileSync(`${projectPath}/tsconfig.json`, tsConfig);
+        console.log("tsconfig.json created.");
+        // create vue entry point
+
+        fs.writeFileSync(`${projectPath}/resources/vue/main.ts`, appTsContent);
+        console.log("Vue entry point setup in resources/vue/main.ts");
+        // create vue component
+        fs.writeFileSync(`${projectPath}/resources/vue/App.vue`, appVueContent);
         console.log("Basic Vue component (App.vue) created.");
+        // create app.blade.php
         const bladePath = `${projectPath}/resources/views/app.blade.php`;
         fs.writeFileSync(bladePath, bladeContent);
         console.log("app.blade.php modified to include Vue component.");
+        // update routes/web.php
         const routeConfig = `Route::get('{any?}', fn() => view("app"))->where("any", ".*");`
         // add route config 
         try {

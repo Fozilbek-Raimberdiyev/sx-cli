@@ -1,4 +1,4 @@
-import { tailwindVueSetup } from "./vue";
-import { tailwindReactSetup } from "./react";
-
-export { tailwindVueSetup, tailwindReactSetup };
+export { tailwindVueSetup } from "./vue";
+export { tailwindReactSetup } from "./react";
+export { tailwindLaravelVueSetup } from "./laravelvue3";
+// export { tailwindVueSetup, tailwindReactSetup };

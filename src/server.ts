@@ -1,8 +1,5 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import fs from "fs";
-import { convertToObject } from "typescript";
-import path from "path";
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -22,39 +19,39 @@ app.get("/api/laravel/migration-types", async (req: Request, res: Response) => {
 app.post("/api/laravel/create-entity", async (req: Request, res: Response) => {
   const entity = req.body;
   //   importing services
-  // const {
-  //   generateMigration,
-  //   generateModel,
-  //   generateFormRequest,
-  //   generateController,
-  //   generateRoute,
-  // } = await import("./laravel");
-  // const { generateVueComponent } = await import("./vue")
-  // generateMigration(
-  //   { apiIdSingular: entity.apiIdSingular, apiIdPlural: entity.apiIdPlural },
-  //   entity.fields,
-  //   entity.projectPath
-  // );
-  // generateModel(
-  //   entity.title,
-  //   entity.fields,
-  //   entity.projectPath,
-  //   entity.groupName
-  // );
-  // generateFormRequest(
-  //   entity.title,
-  //   entity.fields,
-  //   entity.projectPath,
-  //   entity.groupName
-  // );
-  // generateController(entity.title, entity.projectPath, entity.groupName);
-  // generateRoute(
-  //   entity.title,
-  //   entity.apiIdPlural,
-  //   entity.projectPath,
-  //   entity.groupName
-  // );
-  // generateVueComponent(entity.title, entity.projectPath, entity.groupName, entity.apiIdSingular, entity.apiIdPlural, entity.fields)
+  const {
+    generateMigration,
+    generateModel,
+    generateFormRequest,
+    generateController,
+    generateRoute,
+  } = await import("./laravel");
+  const { generateVueComponent } = await import("./vue");
+  generateMigration(
+    { apiIdSingular: entity.apiIdSingular, apiIdPlural: entity.apiIdPlural },
+    entity.fields,
+    entity.projectPath
+  );
+  generateModel(
+    entity.title,
+    entity.fields,
+    entity.projectPath,
+    entity.groupName
+  );
+  generateFormRequest(
+    entity.title,
+    entity.fields,
+    entity.projectPath,
+    entity.groupName
+  );
+  generateController(entity.title, entity.projectPath, entity.groupName);
+  generateRoute(
+    entity.title,
+    entity.apiIdPlural,
+    entity.projectPath,
+    entity.groupName
+  );
+  generateVueComponent(entity.title, entity.projectPath, entity.groupName, entity.apiIdSingular, entity.apiIdPlural, entity.fields)
   return res.status(200).send({ success: true });
 });
 app.listen(3000, async () => {

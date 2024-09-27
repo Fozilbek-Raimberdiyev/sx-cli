@@ -3,7 +3,7 @@ import { Command } from "commander";
 import inquirer from "inquirer";
 import { execSync } from "child_process";
 const program = new Command();
-import { tailwindReactSetup, tailwindVueSetup } from "./tailwind";
+import { tailwindReactSetup, tailwindVueSetup, tailwindLaravelVueSetup } from "./tailwind";
 import { laravelVueSetup } from "./laravel"
 // setup tailwind
 program
@@ -34,7 +34,7 @@ program
         tailwindReactSetup(projectPath, packageManager);
         break;
       case "Laravel + Vue 3":
-        //  tailwindLaravelVueSetup(projectPath, packageManager);
+        tailwindLaravelVueSetup(projectPath, packageManager);
         break;
       case "Laravel + React":
         //  tailwindLaravelReactSetup(projectPath, packageManager);
