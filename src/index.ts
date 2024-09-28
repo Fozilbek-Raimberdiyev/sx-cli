@@ -78,6 +78,13 @@ program.command("generate-entity <entityName>").description("generate entity").a
   execSync(`start ${url}`);
 })
 
+// build schema
+program
+  .command("build-schema")
+  .description("Building database tables")
+  .action(async () => {
+    execSync("start http://localhost:3000/build-schema");
+  });
 
 
 

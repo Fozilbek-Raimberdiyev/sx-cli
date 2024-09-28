@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Build Schema using SX-CLI</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+    </style>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"
+        integrity="sha512-DdX/YwF5e41Ok+AI81HI8f5/5UsoxCVT9GKYZRIzpLxb8Twz4ZwPPX+jQMwMhNQ9b5+zDEefc+dcvQoPWGNZ3g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script>
+    <script src="https://unpkg.com/@primevue/themes/umd/aura.min.js"></script>
+    <div class="w-full h-screen pt-12" id="app" v-cloak>
+        <div class="card">
+            <div class="flex justify-end">
+                <p-button type="button" label="Add table" @click="toggleTableModal">
+                    <template #icon>
+                        <i class='bx bx-plus'></i>
+                    </template>
+                </p-button>
+            </div>
+            <p-table :value="tables" tableStyle="min-width: 50rem">
+                <template #empty>
+                    <div class="text-center">
+                        No tables found.
+                    </div>
+                </template>
+                <p-column field="name" header="Name"></p-column>
+                <p-column field="category" header="Singular"></p-column>
+                <p-column field="quantity" header="Relation"></p-column>
+            </p-table>
+        </div>
+
+        <!-- table modal -->
+        <p-dialog v-model:visible="isVisibleTableModal" modal
+            :header="isClickedUpdateTable ? 'Update table' : 'Create table'" :style="{ width: '85rem' }">
+            <form class="mt-6">
+                <div class="grid grid-cols-12 gap-5 mb-6">
+                    <div class="col-span-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-regular" for="tablename">Table name</label>
+                            <p-input size="small" id="tablename" v-model="tableFormState.name"
+                                aria-describedby="tablename" />
+                        </div>
+                    </div>
+
+                    <div class="col-span-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-regular" for="apiidsingular">Api ID (singular)</label>
+                            <p-input size="small" id="apiidsingular" v-model="tableFormState.apiIdSingular"
+                                aria-describedby="apiidsingular-table" />
+                        </div>
+                    </div>
+                    <div class="col-span-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-regular" for="apiidplural">Api ID (plural)</label>
+                            <p-input size="small" id="apiidplural" v-model="tableFormState.apiIdPlural"
+                                aria-describedby="apiidplural-table" />
+                        </div>
+                    </div>
+                    <div class="col-span-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-regular" for="groupname">Group name(path)</label>
+                            <p-input placeholder="ex: /admin/users" size="small" id="groupName" v-model="groupName"
+                                aria-describedby="groupname" />
+                        </div>
+                    </div>
+                    <div class="col-span-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-regular" for="relation">Relation type</label>
+                            <p-select id="relation" size="small" v-model="tableFormState.relationType" checkmark
+                                :options="relationTypes" :optionLabel="(relation) => relation.name"
+                                :optionValue="(relation) => relation.code" placeholder="Select relation type"
+                                aria-describedby="relation">
+                                <template #option="slotProps">
+                                    <div class="flex items-center">
+                                        <div>{{ slotProps.option.name }}</div>
+                                    </div>
+                                </template>
+                                <template #value="slotProps">
+                                    <div v-if="slotProps.value" class="flex items-center">
+                                        <div>{{ slotProps.value.name }}</div>
+                                    </div>
+                                </template>
+                            </p-select>
+                        </div>
+                    </div>
+                    <div class="col-span-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-regular" for="tablename">Relation table</label>
+                            <p-select showClear editable id="tablename" size="small"
+                                v-model="tableFormState.relationTable" :options="tables"
+                                placeholder="Select relation type" aria-describedby="relation">
+                                <template #option="slotProps">
+                                    <div class="flex items-center">
+                                        <div>{{ slotProps.option.name }}</div>
+                                    </div>
+                                </template>
+                                <template #value="slotProps">
+                                    <div v-if="slotProps.value" class="flex items-center">
+                                        <div>{{ slotProps.value.name }}</div>
+                                    </div>
+                                </template>
+                            </p-select>
+                        </div>
+                    </div>
+                </div>
+                <divider></divider>
+                <div class="flex justify-end">
+                    <p-button @click="createField" severity="contrast" type="button" label="Create field">
+                        <template #icon>
+                            <i class='bx bx-plus'></i>
+                        </template>
+                    </p-button>
+                </div>
+                <div class="flex flex-col gap-5 mt-5">
+                    <div class="grid grid-cols-12 items-center gap-5" v-for="(field, index) in tableFormState.fields"
+                        :key="index">
+                        <div class="col-span-3">
+                            <div class="flex flex-col gap-2">
+                                <label class="font-regular" for="fieldname">Field name</label>
+                                <p-input size="small" id="fieldname" v-model="field.name"
+                                    aria-describedby="fieldname" />
+                            </div>
+                        </div>
+                        <div class="col-span-3">
+                            <div class="flex flex-col gap-2">
+                                <label for="fieldname">Select the type of the field</label>
+                                <p-select editable :options="migrationTypes" placeholder="Select field type"
+                                    style="height: 40px" v-model="field.type" aria-describedby="field type">
+                                </p-select>
+                            </div>
+                        </div>
+                        <div class="col-span-1">
+                            <div class="flex flex-col gap-2">
+                                <label for="nullable">Nullable</label>
+                                <p-toggle-switch type="text" id="nullable" v-model="field.isNullable"
+                                    aria-describedby="isNullable" />
+                            </div>
+                        </div>
+                        <div class="col-span-3">
+                            <div class="flex flex-col gap-2">
+                                <label class="font-regular" for="validationRules">Validation rules</label>
+                                <p-input size="small" id="validationRules" v-model="field.validationRules"
+                                    aria-describedby="validation rules" />
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <div class="flex flex-col gap-2">
+                                <label class="font-regular">Actions</label>
+                                <div class="flex gap-1">
+                                    <p-button @click="deleteField(index)" class="w-full" type="button" label="Delete"
+                                        severity="danger">
+                                        <template #icon>
+                                            <i class='bx bx-trash'></i>
+                                        </template>
+                                    </p-button>
+                                    <p-button @click="resetField(index)" class="w-full" type="button" label="Reset"
+                                        severity="warning">
+                                        <template #icon>
+                                            <i class='bx bx-refresh'></i>
+                                        </template>
+                                    </p-button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <p-button size="small" type="button" severity="secondary" label="Cancel">
+                        <template #icon>
+                            <i class='bx bx-x'></i>
+                        </template>
+                    </p-button>
+                    <p-button v-if="isClickedUpdateTable" size="small" type="button" label="Update"
+                        @click=""></p-button>
+                    <p-button @click="addTable" severity="info" v-else size="small" type="button" label="Save"
+                        @click="">
+                        <template #icon>
+                            <i class='bx bx-save'></i>
+                        </template>
+                    </p-button>
+                </div>
+            </form>
+        </p-dialog>
+    </div>
+
+    <script type="module">
+        const { createApp, ref, onMounted, reactive } = Vue;
+
+        const app = createApp({
+            setup() {
+                const tables = ref([]);
+                const isVisibleTableModal = ref(false);
+                const isClickedUpdateTable = ref(false);
+                const relationTypes = ref([
+                    {
+                        "name": "One to One",
+                        "code": "one-to-one"
+                    },
+                    {
+                        "name": "One to Many",
+                        "code": "one-to-many"
+                    },
+                    {
+                        "name": "Many to Many",
+                        "code": "many-to-many"
+                    }
+                ]);
+                const tableFormState = reactive({
+                    name: "",
+                    apiIdSingular: "",
+                    apiIdPlural: "",
+                    gropName: "",
+                    relationType: null,
+                    relationTable: null,
+                    fields: []
+                })
+                const migrationTypes = ref([]);
+                function toggleTableModal() {
+                    isVisibleTableModal.value = !isVisibleTableModal.value;
+                }
+                async function getMigrationTypes() {
+                    try {
+                        const res = await axios.get("/api/laravel/migration-types");
+                        migrationTypes.value = res.data;
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+
+                function createField() {
+                    tableFormState.fields.push({
+                        name: "",
+                        type: null,
+                        validationRules: "",
+                        isNullable: false
+                    });
+                }
+
+                function resetField(index) {
+                    tableFormState.fields[index].name = ""
+                    tableFormState.fields[index].type = null;
+                    tableFormState.fields[index].validationRules = "";
+                    tableFormState.fields[index].isNullable = false;
+                }
+
+                function deleteField(index) {
+                    tableFormState.fields.splice(index, 1);
+                }
+
+                function addTable() {
+                    tables.value.push(tableFormState);
+                    isVisibleTableModal.value = false;
+                    tableFormState.name = "";
+                    tableFormState.apiIdSingular = "";
+                    tableFormState.apiIdPlural = "";
+                    tableFormState.gropName = "";
+                    tableFormState.relationType = null;
+                    tableFormState.relationTable = null;
+                    tableFormState.fields = [];
+                }
+
+                onMounted(() => {
+                    getMigrationTypes();
+                });
+                return {
+                    tables,
+                    isVisibleTableModal,
+                    isClickedUpdateTable,
+                    toggleTableModal,
+                    tableFormState,
+                    relationTypes,
+                    migrationTypes,
+                    createField,
+                    resetField,
+                    deleteField,
+                    addTable
+                }
+            }
+        });
+
+        app.use(PrimeVue.Config, {
+            theme: {
+                preset: PrimeVue.Themes.Aura,
+            },
+        });
+        app.use(PrimeVue.ToastService);
+        app.component("p-datepicker", PrimeVue.DatePicker);
+        app.component("p-input", PrimeVue.InputText);
+        app.component("divider", PrimeVue.Divider);
+        app.component("p-button", PrimeVue.Button);
+        app.component("p-dialog", PrimeVue.Dialog);
+        app.component("p-select", PrimeVue.Select);
+        app.component("p-table", PrimeVue.DataTable);
+        app.component("p-column", PrimeVue.Column);
+        app.component("p-toast", PrimeVue.Toast);
+        app.component("p-toggle-switch", PrimeVue.ToggleSwitch);
+        app.component("p-progress-spinner", PrimeVue.ProgressSpinner);
+        // app.component("p-dropdown", PrimeVue.Dropdown);
+        app.mount("#app");
+    </script>
+</body>
+
+</html>

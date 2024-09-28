@@ -4,9 +4,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// generate entity
 app.get("/configure-entity/:entityName", (req: Request, res: Response) => {
-  const componentPath = `${process.cwd()}/src/ui/index.html`;
-  res.sendFile(componentPath); // Brauzerda UI ko'rsatiladi
+  const componentPath = `${process.cwd()}/src/ui/GenerateEntity/index.html`;
+  res.sendFile(componentPath);
+});
+
+// build schema
+app.get("/build-schema", (req: Request, res: Response) => {
+  const componentPath = `${process.cwd()}/src/ui/BuildSchema/index.html`;
+  res.sendFile(componentPath);
 });
 
 // get migration types
