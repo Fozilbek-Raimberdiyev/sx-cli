@@ -4,17 +4,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// generate entity
-app.get("/configure-entity/:entityName", (req: Request, res: Response) => {
-  const componentPath = `${process.cwd()}/src/ui/GenerateEntity/index.html`;
-  res.sendFile(componentPath);
-});
 
-// build schema
-app.get("/build-schema", (req: Request, res: Response) => {
-  const componentPath = `${process.cwd()}/src/ui/BuildSchema/index.html`;
-  res.sendFile(componentPath);
-});
+
+
 
 // get migration types
 app.get("/api/laravel/migration-types", async (req: Request, res: Response) => {
@@ -22,7 +14,13 @@ app.get("/api/laravel/migration-types", async (req: Request, res: Response) => {
   return res.status(200).send(migration.migrationTypes);
 });
 
-// get entity
+
+// configure entity ui
+app.get("/configure-entity/:entityName", (req: Request, res: Response) => {
+  const componentPath = `${process.cwd()}/src/ui/GenerateEntity/index.html`;
+  res.sendFile(componentPath);
+});
+// generate entity
 app.post("/api/laravel/create-entity", async (req: Request, res: Response) => {
   const entity = req.body;
   //   importing services
@@ -62,6 +60,20 @@ app.post("/api/laravel/create-entity", async (req: Request, res: Response) => {
   generateVueRoute(entity.title, entity.apiIdPlural, entity.projectPath, entity.groupName, entity.apiIdSingular);
   return res.status(400).send({ success: true });
 });
+
+// build scheme ui
+app.get("/build-scheme", (req: Request, res: Response) => {
+  const componentPath = `${process.cwd()}/src/ui/BuildSchema/index.html`;
+  res.sendFile(componentPath);
+});
+// generate scheme
+app.post("/api/laravel/build-scheme", async (req: Request, res: Response) => {
+  const { } = await import("./laravel");
+  // return  response with timeout
+  setTimeout(() => {
+    return res.status(200).send({ success: true, data: req.body });
+  }, 3000);
+})
 app.listen(3000, async () => {
   console.log("Server is running on port 3000");
 });
