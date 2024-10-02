@@ -9,9 +9,9 @@ export function generateRoute(
   groupName: string = "/admin"
 ) {
   const routePath = path.join(projectPath, "routes", "api.php");
-  const template = `use App\\Http\\Controllers${replaceSlashes(
+  const template = `/* use App\\Http\\Controllers${replaceSlashes(
     groupName
-  )}\\${entityName}Controller;
+  )}\\${entityName}Controller;\n
 //  ${apiIdPlural} ro'yxatini olish
 Route::get('${groupName.toLocaleLowerCase()}/${apiIdPlural}', [${entityName}Controller::class, 'index']);  
 // Yangi ${entityName.toLocaleLowerCase()} qo'shish       
@@ -21,7 +21,7 @@ Route::get('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName
 // Muayyan ${entityName.toLocaleLowerCase()} yangilash
 Route::put('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'update']); 
 // Muayyan ${entityName.toLocaleLowerCase()} o'chirish
-Route::delete('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'destroy']); 
+Route::delete('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'destroy']) */; 
 `;
 
   // Faylni o'qish va qo'shish

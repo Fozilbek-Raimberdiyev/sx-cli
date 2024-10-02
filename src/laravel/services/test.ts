@@ -1,8 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 import { ensureDirectoryExists } from '../../utils/folder'
+import { generateTimeStampMigration } from "../services/migration.service"
+import { formatPhpFile } from "../../utils/prettier"
 // Helper to generate migration for a table
-export function generateMigration(table: any) {
+export function generateMigration(table: any, projectPath: string, fields: any[]) {
     const migrationContent = `<?php
 
 use Illuminate\\Database\\Migrations\\Migration;
@@ -15,8 +17,10 @@ class Create${table.name}Table extends Migration
     {
         Schema::create('${table.apiIdPlural}', function (Blueprint $table) {
             $table->id();
+            ${fields
+            .map((field) => ` $table->${field.type}('${field.name}')${field.isNullable ? "->nullable();" : ";"}`)
+            .join("\n")}
             $table->timestamps();
-
             // Relations
             ${table.relations.map((relation: any) => generateRelation(relation)).join('\n')}
         });
@@ -29,12 +33,13 @@ class Create${table.name}Table extends Migration
 }`
 
     const migrationPath = path.join(
-        __dirname,
+        projectPath,
         'database/migrations',
-        `create_${table.apiIdPlural}_table.php`
+        `${generateTimeStampMigration()}_create_${table.apiIdPlural}_table.php`
     )
     ensureDirectoryExists(migrationPath)
     fs.writeFileSync(migrationPath, migrationContent)
+    formatPhpFile(migrationPath)
     console.log(`Migration created for table: ${table.name}`)
 }
 
@@ -55,7 +60,7 @@ export function generateRelation(relation: any) {
 }
 
 // Helper to generate pivot migration
-export function generatePivotMigration(pivot: any) {
+export function generatePivotMigration(pivot: any, projectPath: string) {
     const pivotMigrationContent = `<?php
 
 use Illuminate\\Database\\Migrations\\Migration;
@@ -76,13 +81,13 @@ class Create${pivot.name}Table extends Migration
         Schema::dropIfExists('${pivot.name}');
     }
 }`
-
-    const pivotMigrationPath = path.join(
-        __dirname,
+    const migrationPath = path.join(
+        projectPath,
         'database/migrations',
-        `create_${pivot.name}_table.php`
+        `${generateTimeStampMigration()}_create_${pivot.name}_table.php`
     )
-    fs.writeFileSync(pivotMigrationPath, pivotMigrationContent)
+    fs.writeFileSync(migrationPath, pivotMigrationContent)
+    formatPhpFile(migrationPath)
     console.log(`Pivot migration created for: ${pivot.name}`)
 }
 
@@ -90,7 +95,7 @@ class Create${pivot.name}Table extends Migration
 export function generatePivotField(field: any) {
     switch (field.type) {
         case 'foreignId':
-            return `$table->foreignId('${field.title}_id')->constrained();`
+            return `$table->foreignId('${field.title}_id')->constrained()->onDelete('cascade');`
 
         case 'primary':
             return `$table->primary([${field.title.map((t: any) => `'${t}'`).join(', ')}]);`
@@ -142,16 +147,3 @@ export function generateModelRelation(relation: any) {
             return ''
     }
 }
-
-// // Process tables
-// const data = {
-//     /* The provided object goes here */
-// }
-
-// data.tables.forEach((table) => {
-//     generateMigration(table)
-//     generateModel(table)
-// })
-
-// // Process pivots
-// data.pivots.forEach((pivot) => generatePivotMigration(pivot))

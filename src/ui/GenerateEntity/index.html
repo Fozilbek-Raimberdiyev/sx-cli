@@ -4,9 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
   <title>Generate Entity using SX-CLI</title>
   <style>
-      @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
   </style>
   <style>
     body {
@@ -37,7 +38,7 @@
     </div>
 
     <p-toast></p-toast>
-    <div class="container mx-auto px-80">
+    <div class="container mx-auto px-2">
       <h1 class="capitalize text-3xl font-semibold" style="color: #10b981">
         {{pathName}}
       </h1>
@@ -80,8 +81,10 @@
           <p class="text-surface-500 dark:text-surface-400 mb-4 text-lg font-semibold">
             Fields
           </p>
-          <p-button @click="handleCreateField" size="small" badgeSeverity="info">
-            Create fields
+          <p-button label="Create fields" @click="handleCreateField" size="small" badgeSeverity="info">
+            <template #icon>
+              <i class="bx bx-plus"></i>
+            </template>
           </p-button>
         </div>
 
@@ -94,20 +97,30 @@
               <div class="flex items-center gap-2">
                 <p-button style="width: 100px" @click="migrationFields.splice(index, 1)" size="small" label="Delete"
                   severity="danger" rounded size="small">
+                  <template #icon>
+                    <i class="bx bx-trash"></i>
+                  </template>
                 </p-button>
                 <p-button style="width: 100px" @click="toggleField(index)" size="small" label="Edit" severity="success"
                   rounded size="small">
+                  <template #icon>
+                    <i class="bx bx-edit"></i>
+                  </template>
                 </p-button>
               </div>
             </template>
           </p-column>
         </p-table>
         <div class="flex justify-end mt-8 gap-1" v-if="migrationFields?.length">
-          <p-button @click="reset" size="small" severity="secondary">
-            Cancel
+          <p-button label="Reset" icon @click="reset" size="small" severity="secondary">
+            <template #icon>
+              <i class="bx bx-reset"></i>
+            </template>
           </p-button>
-          <p-button size="small" :loading="isLoading" severity="info" @click="createEntity">
-            Create entity
+          <p-button label="Create entity" size="small" :loading="isLoading" severity="info" @click="createEntity">
+            <template #icon>
+              <i class="bx bx-plus"></i>
+            </template>
           </p-button>
         </div>
       </div>
@@ -144,10 +157,21 @@
 
       </div>
       <div class="flex justify-end gap-2 mt-4">
-        <p-button size="small" type="button" severity="secondary" label="Cancel" @click="reset"></p-button>
-        <p-button v-if="isClickedUpdate" size="small" type="button" label="Update"
-          @click="updateField(currentIndex)"></p-button>
-        <p-button v-else size="small" type="button" label="Save" @click="addField"></p-button>
+        <p-button size="small" type="button" severity="secondary" label="Cancel" @click="reset">
+          <template #icon>
+            <i class="bx bx-reset"></i>
+          </template>
+        </p-button>
+        <p-button v-if="isClickedUpdate" size="small" type="button" label="Update" @click="updateField(currentIndex)">
+          <template #icon>
+            <i class="bx bx-edit"></i>
+          </template>
+        </p-button>
+        <p-button v-else size="small" type="button" label="Save" @click="addField">
+          <template #icon>
+            <i class="bx bx-plus"></i>
+          </template>
+        </p-button>
       </div>
     </p-dialog>
   </div>

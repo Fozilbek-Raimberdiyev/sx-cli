@@ -6,8 +6,10 @@ import path from "path";
 export function generateController(
   entityName: string,
   projectPath: string,
-  groupName: string = "/admin"
+  groupName: string = "/admin",
+  relations?: any[]
 ) {
+  relations = relations?.filter((item) => item.relationTable);
   const lowerCasedEntityName = entityName.toLowerCase();
   const controllerPath = path.join(
     projectPath,
@@ -31,11 +33,11 @@ class ${entityName}Controller extends Controller
  */
 public function index(Request $request)
 {
-    $limit = $request->input('limit', 10); // Har bir sahifada ko'rsatiladigan clientlar soni
+    $limit = $request->input('limit', 10); // Har bir sahifada ko'rsatiladigan ${lowerCasedEntityName} soni
     $page = $request->input('page', 1); // Hozirgi sahifa
 
     // ${lowerCasedEntityName} sahifalash
-    $data = ${entityName}::paginate($limit, ['*'], 'page', $page);
+    $data = ${entityName}::${relations?.length ? `with([${relations?.map((relation) => `'${relation.relationTable?.apiIdPlural}'`)}])->paginate($limit, ['*'], 'page', $page);` : `::paginate($limit, ['*'], 'page', $page);`}
 
     return response()->json($data);
 }
@@ -47,20 +49,24 @@ public function index(Request $request)
         $request->validated();
 
         $${lowerCasedEntityName} = ${entityName}::create($request->all());
+        ${relations?.map((relation: any) => {
+    return `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->attach($request->input("${relation.relationTable?.apiIdPlural}"));`;
+  }).join("\n")}
         return response()->json($${lowerCasedEntityName}, 201);
     }
 
     /**
-     * Muayyan ${lowerCasedEntityName} ko'rsatadi.
+     * Muayyan ${lowerCasedEntityName}ni ko'rsatadi.
      */
     public function show($id)
     {
-       $${lowerCasedEntityName} = ${entityName}::findOrFail($id);
+       $${lowerCasedEntityName} = ${entityName}${relations?.length ? `::with([${relations?.map((relation) => `'${relation.relationTable?.apiIdPlural}'`).join(',')}])->findOrFail($id);` : `::findOrFail($id);`}
+      
         return response()->json($${lowerCasedEntityName});
     }
 
     /**
-     * Muayyan ${lowerCasedEntityName} yangilaydi.
+     * Muayyan ${lowerCasedEntityName}ni yangilaydi.
      */
     public function update(${entityName}FormRequest $request, $id)
     {
@@ -69,11 +75,14 @@ public function index(Request $request)
         $request->validated();
 
         $${lowerCasedEntityName}->update($request->all());
+         ${relations?.map((relation: any) => {
+    return `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->sync($request->input("${relation.relationTable?.apiIdPlural}"));`;
+  }).join("\n")}
         return response()->json($${lowerCasedEntityName});
     }
 
     /**
-     * Muayyan ${entityName} o'chiradi.
+     * Muayyan ${lowerCasedEntityName}ni o'chiradi.
      */
     public function destroy($id)
     {

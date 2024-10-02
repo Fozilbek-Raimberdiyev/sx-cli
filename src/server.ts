@@ -70,7 +70,7 @@ app.post('/api/laravel/create-entity', async (req: Request, res: Response) => {
         entity.groupName,
         entity.apiIdSingular
     )
-    return res.status(400).send({ success: true })
+    return res.status(200).send({ success: true })
 })
 
 // build scheme ui
@@ -82,14 +82,19 @@ app.get('/build-scheme', (req: Request, res: Response) => {
 app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
     const { generateMigration, generatePivotMigration } = await import(
         './laravel/services/test'
-    )
+    );
+    const { generateModel, generateFormRequest, generateController, generateRoute } = await import("./laravel")
     const data = req.body
     data.tables.forEach((table: any) => {
-        generateMigration(table)
+        generateMigration(table, data.projectPath, table.fields);
+        generateModel(table.name, table.fields, data.projectPath, table.groupName, table.relations);
+        generateFormRequest(table.name, table.fields, data.projectPath, table.groupName);
+        generateController(table.name, data.projectPath, table.groupName, table.relations);
+        generateRoute(table.name, table.apiIdPlural, data.projectPath, table.groupName);
     })
 
     // Process pivots
-    data.pivots.forEach((pivot: any) => generatePivotMigration(pivot))
+    data.pivots.forEach((pivot: any) => generatePivotMigration(pivot, data.projectPath));
     // return  response with timeout
     // setTimeout(() => {
     return res.status(200).send({ success: true, data: req.body })

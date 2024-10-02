@@ -22,6 +22,15 @@ export async function laravelVueSetup(
         // install vite vue plugin
         const installTemplate3 = packageManager === "yarn" ? "yarn add -D @vitejs/plugin-vue laravel-vite-plugin" : packageManager === "pnpm" ? "pnpm add --save-dev @vitejs/plugin-vue laravel-vite-plugin" : "npm install --save-dev @vitejs/plugin-vue laravel-vite-plugin";
         execSync(installTemplate3, { stdio: "inherit", cwd: projectPath });
+
+        const routerClientTemplate = `import { createRouter, createWebHistory } from 'vue-router';\n
+        const router = createRouter({
+            history: createWebHistory(),
+            routes: []
+        });\n
+        export default router;
+        `
+
         // create vite config
         fs.writeFileSync(`${projectPath}/vite.config.js`, viteVueConfig);
         console.log("Vite configuration created.");
@@ -32,6 +41,10 @@ export async function laravelVueSetup(
         // create ts config
         fs.writeFileSync(`${projectPath}/tsconfig.json`, tsConfig);
         console.log("tsconfig.json created.");
+        // create router/index.ts
+        ensureDirectoryExists(`${projectPath}/resources/vue/router/index.ts`);
+        fs.writeFileSync(`${projectPath}/resources/vue/router/index.ts`, routerClientTemplate);
+        console.log("Router index created.");
         // create vue entry point
 
         fs.writeFileSync(`${projectPath}/resources/vue/main.ts`, appTsContent);

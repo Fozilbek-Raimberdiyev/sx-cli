@@ -80,10 +80,11 @@ program.command("generate-entity <entityName>").description("generate entity").a
 
 // build schema
 program
-  .command("build-schema")
+  .command("build-scheme")
   .description("Building database tables")
   .action(async () => {
-    execSync("start http://localhost:3000/build-schema");
+    const projectPath = process.cwd();
+    execSync("start http://localhost:3000/build-scheme?projectPath=" + projectPath);
   });
 
 
