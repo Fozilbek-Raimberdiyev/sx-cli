@@ -79,8 +79,16 @@ export function generateMigrationFileName(tableName: string) {
 }
 
 
-export function generateTimeStampMigration() {
+export function generateTimeStampMigration(after: number = 0, before: number = 0) {
   const now = new Date();
+  // if after has value need plus to now
+  if (after > 0) {
+    now.setSeconds(now.getSeconds() + after);
+  }
+  // if before has value need minus to now
+  if (before > 0) {
+    now.setSeconds(now.getSeconds() - before);
+  }
 
   // Format the date as YYYY_MM_DD_HHMMSS
   const year = now.getFullYear();

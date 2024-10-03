@@ -11,7 +11,7 @@ use Illuminate\\Database\\Migrations\\Migration;
 use Illuminate\\Database\\Schema\\Blueprint;
 use Illuminate\\Support\\Facades\\Schema;
 
-class Create${table.name}Table extends Migration
+ return new class extends Migration
 {
     public function up()
     {
@@ -30,7 +30,7 @@ class Create${table.name}Table extends Migration
     {
         Schema::dropIfExists('${table.apiIdPlural}');
     }
-}`
+};`
 
     const migrationPath = path.join(
         projectPath,
@@ -49,7 +49,7 @@ export function generateRelation(relation: any) {
 
     switch (relation.relationType.code) {
         case 'one-to-many':
-            return `$table->foreignId('${relation.relationTable.apiIdSingular}_id')->constrained('${relation.relationTable.apiIdPlural}');`
+            return relation.isChild ? `$table->foreignId('${relation?.parent?.apiIdSingular}_id')->constrained('${relation?.parent?.apiIdPlural}')->onDelete("cascade");` : ""
 
         case 'many-to-many':
             return `// Many-to-Many relation, managed by a pivot table.`
@@ -67,7 +67,7 @@ use Illuminate\\Database\\Migrations\\Migration;
 use Illuminate\\Database\\Schema\\Blueprint;
 use Illuminate\\Support\\Facades\\Schema;
 
-class Create${pivot.name}Table extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -80,7 +80,7 @@ class Create${pivot.name}Table extends Migration
     {
         Schema::dropIfExists('${pivot.name}');
     }
-}`
+};`
     const migrationPath = path.join(
         projectPath,
         'database/migrations',

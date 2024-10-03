@@ -37,7 +37,7 @@ public function index(Request $request)
     $page = $request->input('page', 1); // Hozirgi sahifa
 
     // ${lowerCasedEntityName} sahifalash
-    $data = ${entityName}::${relations?.length ? `with([${relations?.map((relation) => `'${relation.relationTable?.apiIdPlural}'`)}])->paginate($limit, ['*'], 'page', $page);` : `::paginate($limit, ['*'], 'page', $page);`}
+    $data = ${entityName}::${relations?.length ? `with([${relations?.map((relation) => `'${relation.relationTable?.apiIdPlural}'`)}])->paginate($limit, ['*'], 'page', $page);` : `paginate($limit, ['*'], 'page', $page);`}
 
     return response()->json($data);
 }

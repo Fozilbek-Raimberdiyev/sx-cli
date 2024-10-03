@@ -1,12 +1,13 @@
 import path from "path";
 import fs from "fs";
 import { replaceSlashes } from "../../utils/formatter";
-import { formatPhpFile } from "../../utils/prettier"
+import { formatPhpFile } from "../../utils/prettier";
+const templates: string[] = [];
 export function generateRoute(
   entityName: string,
   apiIdPlural: string,
   projectPath: string,
-  groupName: string = "/admin"
+  groupName: string
 ) {
   const routePath = path.join(projectPath, "routes", "api.php");
   const template = `/* use App\\Http\\Controllers${replaceSlashes(
@@ -21,9 +22,9 @@ Route::get('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName
 // Muayyan ${entityName.toLocaleLowerCase()} yangilash
 Route::put('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'update']); 
 // Muayyan ${entityName.toLocaleLowerCase()} o'chirish
-Route::delete('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'destroy']) */; 
+Route::delete('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'destroy']); */; 
 `;
-
+  templates.push(template);
   // Faylni o'qish va qo'shish
   fs.readFile(routePath, "utf8", (err, data) => {
     if (err) {
@@ -31,29 +32,30 @@ Route::delete('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityN
       return;
     }
 
-    // Agar mavjud bo'lsa, kodni tekshirish
-    if (
-      !data.includes(
-        "use App\\Http\\Controllers\\" +
-        replaceSlashes(groupName) +
-        "\\" +
-        entityName +
-        "Controller;"
-      )
-    ) {
-      // Faylga yangi marshrutni qo'shish
-      const updatedData = `${data.trim()}\n${template.trim()}\n`;
+    // Faylga yangi marshrutni qo'shish
+    const updatedData = `<?php \n // use Illuminate\\Http\\Request;
+    // use Illuminate\\Support\\Facades\\Route;
 
-      fs.writeFile(routePath, updatedData, "utf8", (err) => {
-        if (err) {
-          console.error("Faylni yangilashda xato:", err);
-          return;
-        }
-        console.log("Marshrut muvaffaqiyatli qo'shildi!");
-        formatPhpFile(routePath);
-      });
-    } else {
-      console.log("Marshrut allaqachon mavjud.");
-    }
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group. Make something great!
+|
+*/ \n \n` + templates.map((template) => {
+      return template;
+    }).join("\n");
+    fs.writeFile(routePath, updatedData, "utf8", (err) => {
+      if (err) {
+        console.error("Faylni yangilashda xato:", err);
+        return;
+      }
+      console.log("Marshrut muvaffaqiyatli qo'shildi!");
+      formatPhpFile(routePath);
+    });
   });
-}
+};
+

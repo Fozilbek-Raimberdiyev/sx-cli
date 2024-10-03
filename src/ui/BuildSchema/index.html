@@ -302,7 +302,28 @@
         const { createApp, ref, onMounted, reactive } = Vue
         const app = createApp({
             setup() {
-                const tables = ref([]);
+                const tables = ref([
+                    {
+                        "name": "Comment",
+                        "apiIdSingular": "comment",
+                        "apiIdPlural": "comments",
+                        "groupName": "",
+                        "relations": [
+                            {
+                                "relationType": null,
+                                "relationTable": null
+                            },
+                        ],
+                        "fields": [
+                            {
+                                "name": "title",
+                                "type": "longText",
+                                "validationRules": "",
+                                "isNullable": true
+                            }
+                        ]
+                    },
+                ]);
                 const isLoading = ref(false);
                 const projectPath = new URLSearchParams(window.location.search).get('projectPath');
                 const isVisibleTableModal = ref(false)
@@ -381,6 +402,26 @@
                 function addTable() {
                     tables.value.push({ ...tableFormState })
                     for (const relation of tableFormState.relations) {
+                        relation.isOneToMany = relation.relationType?.code === 'one-to-many';
+                        relation.isManyToMany = relation.relationType?.code === 'many-to-many';
+                        relation.isParent = true;
+                        relation.isChild = false;
+                        relation.parent = {
+                            name: tableFormState.name,
+                            apiIdSingular:
+                                tableFormState.apiIdSingular,
+                            apiIdPlural: tableFormState.apiIdPlural,
+                            groupName: tableFormState.groupName,
+                            method: "hasMany"
+                        }
+                        relation.child = {
+                            name: relation.relationTable?.name,
+                            apiIdSingular:
+                                relation.relationTable?.apiIdSingular,
+                            apiIdPlural: relation.relationTable?.apiIdPlural,
+                            groupName: relation.relationTable?.groupName,
+                            method: "belongsTo"
+                        }
                         if (
                             !relation.relationTable?.relations.some(
                                 (item) =>
@@ -388,7 +429,6 @@
                                     tableFormState.name
                             )
                         ) {
-                            // {
                             relation.relationTable?.relations.push({
                                 relationType: relation.relationType,
                                 relationTable: {
@@ -398,8 +438,13 @@
                                     apiIdPlural: tableFormState.apiIdPlural,
                                     groupName: tableFormState.groupName,
                                 },
+                                child: relation.child,
+                                parent: relation.parent,
+                                isOneToMany: relation.isOneToMany,
+                                isManyToMany: relation.isManyToMany,
+                                isChild: true,
+                                isParent: false,
                             })
-                            // }
                         }
                     }
                     isVisibleTableModal.value = false
@@ -417,7 +462,6 @@
                         fields: [],
                     })
                 }
-
                 function toggleUpdateTable(index) {
                     isClickedUpdateTable.value = true
                     isVisibleTableModal.value = true
@@ -437,14 +481,30 @@
                         ...tableFormState,
                     }
                     for (const relation of tableFormState.relations) {
+                        relation.isOneToMany = relation.relationType?.code === 'one-to-many';
+                        relation.isManyToMany = relation.relationType?.code === 'many-to-many';
+                        relation.one = {
+                            name: tableFormState.name,
+                            apiIdSingular:
+                                tableFormState.apiIdSingular,
+                            apiIdPlural: tableFormState.apiIdPlural,
+                            groupName: tableFormState.groupName,
+                        }
+                        relation.many = {
+                            name: relation.relationTable?.name,
+                            apiIdSingular:
+                                relation.relationTable?.apiIdSingular,
+                            apiIdPlural: relation.relationTable?.apiIdPlural,
+                            groupName: relation.relationTable?.groupName,
+                        }
                         if (
                             !relation.relationTable?.relations?.some(
-                                (item) =>
-                                    item.relationTable?.name ===
-                                    tableFormState.name
+                                (item) => {
+                                    return item.relationTable?.name === tableFormState.name
+                                }
+
                             )
                         ) {
-                            // {
                             relation.relationTable?.relations?.push({
                                 relationType: relation.relationType,
                                 relationTable: {
@@ -455,22 +515,12 @@
                                     groupName: tableFormState.groupName,
                                 },
                             })
-                            // }
+
                         }
                     }
 
                     // update other tables
                     for (const table of tables.value) {
-                        // table.relations?.some((item) => {
-                        //     console.log(
-                        //         item.relationTable?.name ===
-                        //             tableFormState.name,
-                        //         '=>',
-                        //         item,
-                        //         'tableFormState.relations =>',
-                        //         tableFormState.relations
-                        //     )
-                        // })
                         if (
                             table.relations?.some(
                                 (item) =>
@@ -582,9 +632,11 @@
                                                 },
                                             ],
                                         }
+                                        if (relation.relationType?.code === 'many-to-many') {
+                                            pivots.push(pivot) // Add the pivot object to the array
+                                            pivotNames.add(pivotName) // Track the pivot name to prevent duplicates
+                                        }
 
-                                        pivots.push(pivot) // Add the pivot object to the array
-                                        pivotNames.add(pivotName) // Track the pivot name to prevent duplicates
                                     }
                                 }
                             }

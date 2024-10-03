@@ -34,16 +34,28 @@ class ${modelName} extends Model
       .join(",")}];
       \n
   ${relations?.filter((relation: any) => relation.relationTable)?.map((relation: any) => {
+        const oneToManyParent = () => {
+          return `public function ${relation.child.apiIdPlural}() {
+        return $this->hasMany(${relation.child.name}::class);
+        }`
+        }
+        const oneToManyChild = () => {
+          return `public function ${relation.parent.apiIdSingular}() {
+          return $this->belongsTo(${relation.parent.name}::class);
+          }`
+        }
+
+        const manyToMany = () => {
+          return `public function ${relation.relationTable.apiIdPlural}() {
+        return $this->${relation.relationType.code === 'many-to-many' ? 'belongsToMany' : 'belongsTo'}(${relation.relationTable.name}::class);
+      }`
+        }
         return `
       // ${relation.relationType.code} with ${relation.relationTable.apiIdPlural} table 
-      public function ${relation.relationTable.apiIdPlural}() {
-        return $this->${relation.relationType.code === 'many-to-many' ? 'belongsToMany' : 'belongsTo'}(${relation.relationTable.name}::class);
-      }
+        ${relation.relationType.code === 'one-to-many' && relation.isParent ? oneToManyParent() : relation.relationType.code === 'one-to-many' && relation.isChild ? oneToManyChild() : relation.relationType.code === 'many-to-many' ? manyToMany() : ""}
       `
       }).join('\n')}    
-}
-
-    
+}    
     `;
 
   ensureDirectoryExists(modelPath);

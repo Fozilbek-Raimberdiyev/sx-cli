@@ -1,8 +1,8 @@
-import express, { Request, Response } from 'express'
-import cors from 'cors'
-const app = express()
-app.use(cors())
-app.use(express.json())
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+const app = express();
+app.use(cors());
+app.use(express.json());
 
 // get migration types
 app.get('/api/laravel/migration-types', async (req: Request, res: Response) => {
@@ -84,21 +84,22 @@ app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
         './laravel/services/test'
     );
     const { generateModel, generateFormRequest, generateController, generateRoute } = await import("./laravel")
-    const data = req.body
-    data.tables.forEach((table: any) => {
+    const data = req.body;
+    const tables = data.tables?.reverse();
+    tables.forEach((table: any) => {
         generateMigration(table, data.projectPath, table.fields);
         generateModel(table.name, table.fields, data.projectPath, table.groupName, table.relations);
         generateFormRequest(table.name, table.fields, data.projectPath, table.groupName);
-        generateController(table.name, data.projectPath, table.groupName, table.relations);
+        // generateController(table.name, data.projectPath, table.groupName, table.relations);
         generateRoute(table.name, table.apiIdPlural, data.projectPath, table.groupName);
     })
 
     // Process pivots
-    data.pivots.forEach((pivot: any) => generatePivotMigration(pivot, data.projectPath));
+    data.pivots.forEach((pivot: any) => {
+        generatePivotMigration(pivot, data.projectPath)
+    });
     // return  response with timeout
-    // setTimeout(() => {
     return res.status(200).send({ success: true, data: req.body })
-    // }, 3000);
 })
 app.listen(3000, async () => {
     console.log('Server is running on port 3000')
