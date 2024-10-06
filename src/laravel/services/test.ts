@@ -1,10 +1,14 @@
 import fs from 'fs'
 import path from 'path'
 import { ensureDirectoryExists } from '../../utils/folder'
-import { generateTimeStampMigration } from "../services/migration.service"
-import { formatPhpFile } from "../../utils/prettier"
+import { generateTimeStampMigration } from '../services/migration.service'
+import { formatPhpFile } from '../../utils/prettier'
 // Helper to generate migration for a table
-export function generateMigration(table: any, projectPath: string, fields: any[]) {
+export function generateMigration(
+    table: any,
+    projectPath: string,
+    fields: any[]
+) {
     const migrationContent = `<?php
 
 use Illuminate\\Database\\Migrations\\Migration;
@@ -18,11 +22,14 @@ use Illuminate\\Support\\Facades\\Schema;
         Schema::create('${table.apiIdPlural}', function (Blueprint $table) {
             $table->id();
             ${fields
-            .map((field) => ` $table->${field.type}('${field.name}')${field.isNullable ? "->nullable();" : ";"}`)
-            .join("\n")}
+                .map(
+                    (field) =>
+                        ` $table->${field.type}('${field.name}')${field.isNullable ? '->nullable();' : ';'}`
+                )
+                .join('\n')}
             $table->timestamps();
             // Relations
-            ${table.relations.map((relation: any) => generateRelation(relation)).join('\n')}
+            ${table.relations ? table.relations?.map((relation: any) => generateRelation(relation)).join('\n') : ''}
         });
     }
 
@@ -49,7 +56,9 @@ export function generateRelation(relation: any) {
 
     switch (relation.relationType.code) {
         case 'one-to-many':
-            return relation.isChild ? `$table->foreignId('${relation?.parent?.apiIdSingular}_id')->constrained('${relation?.parent?.apiIdPlural}')->onDelete("cascade");` : ""
+            return relation.isChild
+                ? `$table->foreignId('${relation?.parent?.apiIdSingular}_id')->constrained('${relation?.parent?.apiIdPlural}')->onDelete("cascade");`
+                : ''
 
         case 'many-to-many':
             return `// Many-to-Many relation, managed by a pivot table.`

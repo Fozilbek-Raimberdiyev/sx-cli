@@ -1,13 +1,17 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
-  },
-  "include": ["src/**/*.ts", "src/ui/BuildSchema/mock.ts"],
-  "exclude": ["node_modules", "dist"]
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/ui/*"]
+        }
+    },
+    "include": ["src/**/*.ts", "src/ui/**/*.ts", "src/ui/**/*.tsx", "src/ui/**/*.vue"],
+    "exclude": ["node_modules", "dist"]
 }

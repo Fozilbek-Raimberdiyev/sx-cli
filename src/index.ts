@@ -1,65 +1,75 @@
 #!/usr/bin/env node
-import { Command } from "commander";
-import inquirer from "inquirer";
-import { execSync } from "child_process";
-const program = new Command();
-import { tailwindReactSetup, tailwindVueSetup, tailwindLaravelVueSetup } from "./tailwind";
-import { laravelVueSetup } from "./laravel"
+import { Command } from 'commander'
+import inquirer from 'inquirer'
+import { execSync } from 'child_process'
+const program = new Command()
+import {
+    tailwindReactSetup,
+    tailwindVueSetup,
+    tailwindLaravelVueSetup,
+} from './tailwind'
+import { laravelVueSetup } from './laravel'
 
 // start dev server
 program
-  .command("start server")
-  .description("start dev server")
-  .action(async () => {
-    execSync("yarn dev", { stdio: "inherit", cwd: __dirname });
-  });
+    .command('start server')
+    .description('start dev server')
+    .action(async () => {
+        execSync('yarn dev', { stdio: 'inherit', cwd: __dirname })
+    })
 
 // setup tailwind
 program
-  .command("tailwind:setup")
-  .description("setup tailwind")
-  .action(async () => {
-    const { framework, packageManager } = await inquirer.prompt([
-      {
-        type: "list",
-        name: "framework",
-        message: "Tailwind CSS setup qilinishi uchun frameworkni tanlang:",
-        choices: ["Vue 3", "React", "Laravel + Vue 3", "Laravel + React"],
-      },
-      {
-        type: "list",
-        name: "packageManager",
-        message: "Package managerni tanlang:",
-        choices: ["npm", "yarn", "pnpm"],
-      },
-    ]);
-    const projectPath = process.cwd();
+    .command('tailwind:setup')
+    .description('setup tailwind')
+    .action(async () => {
+        const { framework, packageManager } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'framework',
+                message:
+                    'Tailwind CSS setup qilinishi uchun frameworkni tanlang:',
+                choices: [
+                    'Vue 3',
+                    'React',
+                    'Laravel + Vue 3',
+                    'Laravel + React',
+                ],
+            },
+            {
+                type: 'list',
+                name: 'packageManager',
+                message: 'Package managerni tanlang:',
+                choices: ['npm', 'yarn', 'pnpm'],
+            },
+        ])
+        const projectPath = process.cwd()
 
-    switch (framework) {
-      case "Vue 3":
-        tailwindVueSetup(projectPath, packageManager);
-        break;
-      case "React":
-        tailwindReactSetup(projectPath, packageManager);
-        break;
-      case "Laravel + Vue 3":
-        tailwindLaravelVueSetup(projectPath, packageManager);
-        break;
-      case "Laravel + React":
-        //  tailwindLaravelReactSetup(projectPath, packageManager);
-        break;
-    }
-  });
+        switch (framework) {
+            case 'Vue 3':
+                tailwindVueSetup(projectPath, packageManager)
+                break
+            case 'React':
+                tailwindReactSetup(projectPath, packageManager)
+                break
+            case 'Laravel + Vue 3':
+                tailwindLaravelVueSetup(projectPath, packageManager)
+                break
+            case 'Laravel + React':
+                //  tailwindLaravelReactSetup(projectPath, packageManager);
+                break
+        }
+    })
 
 // setup vue 3 in laravel
 program
-  .command("laravel:vue-setup")
-  .description("setup vue 3 in laravel")
-  .action(async () => {
-    const projectPath = process.cwd();
-    laravelVueSetup(projectPath)
-    // tailwindLaravelVueSetup(projectPath, "yarn");
-  });
+    .command('laravel:vue-setup')
+    .description('setup vue 3 in laravel')
+    .action(async () => {
+        const projectPath = process.cwd()
+        laravelVueSetup(projectPath)
+        // tailwindLaravelVueSetup(projectPath, "yarn");
+    })
 
 // setup react in laravel
 // program
@@ -72,22 +82,25 @@ program
 //   });
 
 // generate entity
-program.command("generate-entity <entityName>").description("generate entity").action(async (entityName) => {
-  // open in browser
-  const url = `http://localhost:3000/configure-entity/${entityName}?projectPath=${process.cwd()}`;
-  execSync(`start ${url}`);
-})
+program
+    .command('generate-entity <entityName>')
+    .description('generate entity')
+    .action(async (entityName) => {
+        // open in browser
+        const url = `http://localhost:3000/entity?entityName=${entityName}?projectPath=${process.cwd()}`
+        execSync(`start ${url}`)
+    })
 
 // build schema
 program
-  .command("build-scheme")
-  .description("Building database tables")
-  .action(async () => {
-    const projectPath = process.cwd();
-    execSync("start http://localhost:3000/build-scheme?projectPath=" + projectPath);
-  });
+    .command('build-scheme')
+    .description('Building database tables')
+    .action(async () => {
+        const projectPath = process.cwd()
+        execSync(
+            'start http://localhost:3000/scheme?projectPath=' +
+                projectPath
+        )
+    })
 
-
-
-
-program.parse(process.argv);
+program.parse(process.argv)

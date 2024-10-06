@@ -28,10 +28,6 @@
             referrerpolicy="no-referrer"
         ></script>
         <link
-            rel="stylesheet"
-            href="https://unpkg.com/primeicons@7.0.0/primeicons.css"
-        />
-        <link
             href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
             rel="stylesheet"
         />
@@ -64,12 +60,7 @@
                         </template>
                     </p-button>
                 </div>
-
                 <p-table
-                    :reorderableColumns="true"
-                    @columnReorder="onColReorder"
-                    @rowReorder="onRowReorder"
-                    stripedRows
                     removableSort
                     :value="tables"
                     tableStyle="min-width: 50rem"
@@ -82,18 +73,9 @@
                             <span>No tables found.</span>
                         </div>
                     </template>
-                    <!-- <p-column
-                        rowReorder
-                        headerStyle="width: 3rem"
-                        
-                    ></p-column> -->
                     <!-- № -->
-                    <p-column
-                        :reorderableColumn="false"
-                        rowReorder
-                        header="No."
-                    >
-                        <template #body="{ index }"> <i class="bx bx-receipt"></i> {{ index + 1 }} </template>
+                    <p-column header="No.">
+                        <template #body="{ index }"> {{ index + 1 }} </template>
                     </p-column>
                     <p-column sortable field="name" header="Name"></p-column>
                     <p-column
@@ -276,11 +258,12 @@
                         </div>
                         <div class="col-span-12"></div>
                         <div
+                            v-show="isClickedUpdateTable"
                             class="col-span-12 grid grid-cols-12 gap-5 bg-gray-100 p-5 rounded-md relative pb-10"
-                            v-for="(relation, index) in tableFormState.relations"
+                            v-for="(relation, index) in  tableFormState.relations"
                             :key="index"
                         >
-                            <div class="col-span-6">
+                            <div class="col-span-4">
                                 <div class="flex flex-col gap-2">
                                     <label class="font-regular" for="relation"
                                         >Relation type</label
@@ -316,7 +299,7 @@
                                     </p-select>
                                 </div>
                             </div>
-                            <div class="col-span-6">
+                            <div class="col-span-4">
                                 <div class="flex flex-col gap-2">
                                     <label class="font-regular" for="tablename"
                                         >Relation table</label
@@ -352,6 +335,40 @@
                                     </p-select>
                                 </div>
                             </div>
+                            <div class="col-span-3">
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-regular" for="tablename"
+                                        >Relation mode</label
+                                    >
+                                    <p-select
+                                        checkmark
+                                        id="relationMode"
+                                        size="small"
+                                        v-model="relation.relationMode"
+                                        :options="relationModes"
+                                        placeholder="Select relation mode"
+                                        aria-describedby="relation mode"
+                                    >
+                                        <template #option="slotProps">
+                                            <div class="flex items-center">
+                                                <div>
+                                                    {{ slotProps.option.name }}
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <template #value="slotProps">
+                                            <div
+                                                v-if="slotProps.value"
+                                                class="flex items-center"
+                                            >
+                                                <div>
+                                                    {{ slotProps.value.name }}
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </p-select>
+                                </div>
+                            </div>
                             <div class="add-button absolute right-1 top-1">
                                 <button
                                     class="p-1 bg-gray-100 rounded-md"
@@ -364,7 +381,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-span-12">
+                        <div class="col-span-12" v-show="isClickedUpdateTable">
                             <div class="flex justify-end">
                                 <button
                                     class="p-1 bg-gray-100 rounded-md"
@@ -521,526 +538,48 @@
                 </div>
             </p-dialog>
         </div>
+
         <script type="module">
             const { createApp, ref, onMounted, reactive } = Vue
             const app = createApp({
                 setup() {
-                    const toast = PrimeVue.useToast()
                     const tables = ref([
                         {
                             name: 'Country',
                             apiIdSingular: 'country',
                             apiIdPlural: 'countries',
                             groupName: '',
-                            relations: [
-                                {
-                                    relationType: null,
-                                    relationTable: null,
-                                    isOneToMany: false,
-                                    isManyToMany: false,
-                                    isParent: true,
-                                    isChild: false,
-                                    parent: {
-                                        name: 'Country',
-                                        apiIdSingular: 'country',
-                                        apiIdPlural: 'countries',
-                                        groupName: '',
-                                        method: 'hasMany',
-                                    },
-                                    child: {
-                                        method: 'belongsTo',
-                                    },
-                                },
-                            ],
-                            fields: [
-                                {
-                                    name: 'title',
-                                    type: 'string',
-                                    validationRules: 'required',
-                                    isNullable: false,
-                                },
-                            ],
-                            gropName: '',
+                            fields: [],
                         },
                         {
-                            name: 'Like',
-                            apiIdSingular: 'like',
-                            apiIdPlural: 'likes',
+                            name: 'Region',
+                            apiIdSingular: 'region',
+                            apiIdPlural: 'regions',
                             groupName: '',
-                            relations: [
-                                {
-                                    relationType: null,
-                                    relationTable: null,
-                                    isOneToMany: false,
-                                    isManyToMany: false,
-                                    isParent: true,
-                                    isChild: false,
-                                    parent: {
-                                        name: 'Like',
-                                        apiIdSingular: 'like',
-                                        apiIdPlural: 'likes',
-                                        groupName: '',
-                                        method: 'hasMany',
-                                    },
-                                    child: {
-                                        method: 'belongsTo',
-                                    },
-                                },
-                                {
-                                    relationType: {
-                                        name: 'One to Many',
-                                        code: 'one-to-many',
-                                    },
-                                    relationTable: {
-                                        name: 'Post',
-                                        apiIdSingular: 'post',
-                                        apiIdPlural: 'posts',
-                                        groupName: '',
-                                        child: {
-                                            name: 'Like',
-                                            apiIdSingular: 'like',
-                                            apiIdPlural: 'likes',
-                                            groupName: '',
-                                        },
-                                        parent: {
-                                            name: 'Post',
-                                            apiIdSingular: 'post',
-                                            apiIdPlural: 'posts',
-                                            groupName: '',
-                                        },
-                                        isOneToMany: true,
-                                        isManyToMany: false,
-                                        isChild: true,
-                                        isParent: false,
-                                    },
-                                },
-                            ],
                             fields: [],
                             gropName: '',
                         },
                         {
-                            name: 'Comment',
-                            apiIdSingular: 'comment',
-                            apiIdPlural: 'comments',
+                            name: 'Districts',
+                            apiIdSingular: 'district',
+                            apiIdPlural: 'districts',
                             groupName: '',
-                            relations: [
-                                {
-                                    relationType: null,
-                                    relationTable: null,
-                                    isOneToMany: false,
-                                    isManyToMany: false,
-                                    isParent: true,
-                                    isChild: false,
-                                    parent: {
-                                        name: 'Comment',
-                                        apiIdSingular: 'comment',
-                                        apiIdPlural: 'comments',
-                                        groupName: '',
-                                        method: 'hasMany',
-                                    },
-                                    child: {
-                                        method: 'belongsTo',
-                                    },
-                                },
-                                {
-                                    relationType: {
-                                        name: 'One to Many',
-                                        code: 'one-to-many',
-                                    },
-                                    relationTable: {
-                                        name: 'Post',
-                                        apiIdSingular: 'post',
-                                        apiIdPlural: 'posts',
-                                        groupName: '',
-                                        child: {
-                                            name: 'Comment',
-                                            apiIdSingular: 'comment',
-                                            apiIdPlural: 'comments',
-                                            groupName: '',
-                                        },
-                                        parent: {
-                                            name: 'Post',
-                                            apiIdSingular: 'post',
-                                            apiIdPlural: 'posts',
-                                            groupName: '',
-                                        },
-                                        isOneToMany: true,
-                                        isManyToMany: false,
-                                        isChild: true,
-                                        isParent: false,
-                                    },
-                                },
-                            ],
-                            fields: [
-                                {
-                                    name: 'title',
-                                    type: 'longText',
-                                    validationRules: '',
-                                    isNullable: true,
-                                },
-                            ],
+                            fields: [],
                             gropName: '',
                         },
+                    ])
+                    const relationModes = ref([
                         {
-                            name: 'Post',
-                            apiIdSingular: 'post',
-                            apiIdPlural: 'posts',
-                            groupName: '',
-                            relations: [
-                                {
-                                    relationType: {
-                                        name: 'One to Many',
-                                        code: 'one-to-many',
-                                    },
-                                    relationTable: {
-                                        name: 'Comment',
-                                        apiIdSingular: 'comment',
-                                        apiIdPlural: 'comments',
-                                        groupName: '',
-                                        relations: [
-                                            {
-                                                relationType: null,
-                                                relationTable: null,
-                                                isOneToMany: false,
-                                                isManyToMany: false,
-                                                isParent: true,
-                                                isChild: false,
-                                                parent: {
-                                                    name: 'Comment',
-                                                    apiIdSingular: 'comment',
-                                                    apiIdPlural: 'comments',
-                                                    groupName: '',
-                                                    method: 'hasMany',
-                                                },
-                                                child: {
-                                                    method: 'belongsTo',
-                                                },
-                                            },
-                                            {
-                                                relationType: {
-                                                    name: 'One to Many',
-                                                    code: 'one-to-many',
-                                                },
-                                                relationTable: {
-                                                    name: 'Post',
-                                                    apiIdSingular: 'post',
-                                                    apiIdPlural: 'posts',
-                                                    groupName: '',
-                                                    child: {
-                                                        name: 'Comment',
-                                                        apiIdSingular:
-                                                            'comment',
-                                                        apiIdPlural: 'comments',
-                                                        groupName: '',
-                                                    },
-                                                    parent: {
-                                                        name: 'Post',
-                                                        apiIdSingular: 'post',
-                                                        apiIdPlural: 'posts',
-                                                        groupName: '',
-                                                    },
-                                                    isOneToMany: true,
-                                                    isManyToMany: false,
-                                                    isChild: true,
-                                                    isParent: false,
-                                                },
-                                            },
-                                        ],
-                                        fields: [
-                                            {
-                                                name: 'title',
-                                                type: 'longText',
-                                                validationRules: '',
-                                                isNullable: true,
-                                            },
-                                        ],
-                                        gropName: '',
-                                    },
-                                    isOneToMany: true,
-                                    isManyToMany: false,
-                                    isParent: true,
-                                    isChild: false,
-                                    parent: {
-                                        name: 'Post',
-                                        apiIdSingular: 'post',
-                                        apiIdPlural: 'posts',
-                                        groupName: '',
-                                    },
-                                    child: {
-                                        name: 'Comment',
-                                        apiIdSingular: 'comment',
-                                        apiIdPlural: 'comments',
-                                        groupName: '',
-                                    },
-                                },
-                                {
-                                    relationType: {
-                                        name: 'One to Many',
-                                        code: 'one-to-many',
-                                    },
-                                    relationTable: {
-                                        name: 'Like',
-                                        apiIdSingular: 'like',
-                                        apiIdPlural: 'likes',
-                                        groupName: '',
-                                        relations: [
-                                            {
-                                                relationType: null,
-                                                relationTable: null,
-                                                isOneToMany: false,
-                                                isManyToMany: false,
-                                                isParent: true,
-                                                isChild: false,
-                                                parent: {
-                                                    name: 'Like',
-                                                    apiIdSingular: 'like',
-                                                    apiIdPlural: 'likes',
-                                                    groupName: '',
-                                                    method: 'hasMany',
-                                                },
-                                                child: {
-                                                    method: 'belongsTo',
-                                                },
-                                            },
-                                            {
-                                                relationType: {
-                                                    name: 'One to Many',
-                                                    code: 'one-to-many',
-                                                },
-                                                relationTable: {
-                                                    name: 'Post',
-                                                    apiIdSingular: 'post',
-                                                    apiIdPlural: 'posts',
-                                                    groupName: '',
-                                                    child: {
-                                                        name: 'Like',
-                                                        apiIdSingular: 'like',
-                                                        apiIdPlural: 'likes',
-                                                        groupName: '',
-                                                    },
-                                                    parent: {
-                                                        name: 'Post',
-                                                        apiIdSingular: 'post',
-                                                        apiIdPlural: 'posts',
-                                                        groupName: '',
-                                                    },
-                                                    isOneToMany: true,
-                                                    isManyToMany: false,
-                                                    isChild: true,
-                                                    isParent: false,
-                                                },
-                                            },
-                                        ],
-                                        fields: [],
-                                        gropName: '',
-                                    },
-                                    isOneToMany: true,
-                                    isManyToMany: false,
-                                    parent: {
-                                        name: 'Post',
-                                        apiIdSingular: 'post',
-                                        apiIdPlural: 'posts',
-                                        groupName: '',
-                                    },
-                                    child: {
-                                        name: 'Like',
-                                        apiIdSingular: 'like',
-                                        apiIdPlural: 'likes',
-                                        groupName: '',
-                                    },
-                                    isParent: true,
-                                    isChild: false,
-                                },
-                            ],
-                            fields: [
-                                {
-                                    name: 'title',
-                                    type: 'longText',
-                                    validationRules: 'required',
-                                    isNullable: false,
-                                },
-                                {
-                                    name: 'description',
-                                    type: 'longText',
-                                    validationRules: 'required',
-                                    isNullable: false,
-                                },
-                                {
-                                    name: 'content',
-                                    type: 'longText',
-                                    validationRules: 'required',
-                                    isNullable: false,
-                                },
-                            ],
+                            name: 'Child',
+                            code: 'child',
                         },
                         {
-                            name: 'Skill',
-                            apiIdSingular: 'skill',
-                            apiIdPlural: 'skills',
-                            groupName: '',
-                            relations: [
-                                {
-                                    relationType: {
-                                        name: 'Many to Many',
-                                        code: 'many-to-many',
-                                    },
-                                    relationTable: {
-                                        name: 'Developer',
-                                        apiIdSingular: 'developer',
-                                        apiIdPlural: 'developers',
-                                        groupName: '',
-                                        relations: [
-                                            {
-                                                relationType: null,
-                                                relationTable: null,
-                                                isOneToMany: false,
-                                                isManyToMany: false,
-                                                isParent: true,
-                                                isChild: false,
-                                                parent: {
-                                                    name: 'Developer',
-                                                    apiIdSingular: 'developer',
-                                                    apiIdPlural: 'developers',
-                                                    groupName: '',
-                                                    method: 'hasMany',
-                                                },
-                                                child: {
-                                                    method: 'belongsTo',
-                                                },
-                                            },
-                                            {
-                                                relationType: {
-                                                    name: 'Many to Many',
-                                                    code: 'many-to-many',
-                                                },
-                                                relationTable: {
-                                                    name: 'Skill',
-                                                    apiIdSingular: 'skill',
-                                                    apiIdPlural: 'skills',
-                                                    groupName: '',
-                                                },
-                                                child: {
-                                                    name: 'Developer',
-                                                    apiIdSingular: 'developer',
-                                                    apiIdPlural: 'developers',
-                                                    groupName: '',
-                                                    method: 'belongsTo',
-                                                },
-                                                parent: {
-                                                    name: 'Skill',
-                                                    apiIdSingular: 'skill',
-                                                    apiIdPlural: 'skills',
-                                                    groupName: '',
-                                                    method: 'hasMany',
-                                                },
-                                                isOneToMany: false,
-                                                isManyToMany: true,
-                                                isChild: true,
-                                                isParent: false,
-                                            },
-                                        ],
-                                        fields: [
-                                            {
-                                                name: 'fullName',
-                                                type: 'string',
-                                                validationRules: 'required',
-                                                isNullable: false,
-                                            },
-                                        ],
-                                    },
-                                    isOneToMany: false,
-                                    isManyToMany: true,
-                                    isParent: true,
-                                    isChild: false,
-                                    parent: {
-                                        name: 'Skill',
-                                        apiIdSingular: 'skill',
-                                        apiIdPlural: 'skills',
-                                        groupName: '',
-                                        method: 'hasMany',
-                                    },
-                                    child: {
-                                        name: 'Developer',
-                                        apiIdSingular: 'developer',
-                                        apiIdPlural: 'developers',
-                                        groupName: '',
-                                        method: 'belongsTo',
-                                    },
-                                },
-                            ],
-                            fields: [
-                                {
-                                    name: 'title',
-                                    type: 'string',
-                                    validationRules: 'required',
-                                    isNullable: false,
-                                },
-                            ],
-                            gropName: '',
+                            name: 'Parent',
+                            code: 'parent',
                         },
                         {
-                            name: 'Developer',
-                            apiIdSingular: 'developer',
-                            apiIdPlural: 'developers',
-                            groupName: '',
-                            relations: [
-                                {
-                                    relationType: null,
-                                    relationTable: null,
-                                    isOneToMany: false,
-                                    isManyToMany: false,
-                                    isParent: true,
-                                    isChild: false,
-                                    parent: {
-                                        name: 'Developer',
-                                        apiIdSingular: 'developer',
-                                        apiIdPlural: 'developers',
-                                        groupName: '',
-                                        method: 'hasMany',
-                                    },
-                                    child: {
-                                        method: 'belongsTo',
-                                    },
-                                },
-                                {
-                                    relationType: {
-                                        name: 'Many to Many',
-                                        code: 'many-to-many',
-                                    },
-                                    relationTable: {
-                                        name: 'Skill',
-                                        apiIdSingular: 'skill',
-                                        apiIdPlural: 'skills',
-                                        groupName: '',
-                                    },
-                                    child: {
-                                        name: 'Developer',
-                                        apiIdSingular: 'developer',
-                                        apiIdPlural: 'developers',
-                                        groupName: '',
-                                        method: 'belongsTo',
-                                    },
-                                    parent: {
-                                        name: 'Skill',
-                                        apiIdSingular: 'skill',
-                                        apiIdPlural: 'skills',
-                                        groupName: '',
-                                        method: 'hasMany',
-                                    },
-                                    isOneToMany: false,
-                                    isManyToMany: true,
-                                    isChild: true,
-                                    isParent: false,
-                                },
-                            ],
-                            fields: [
-                                {
-                                    name: 'fullName',
-                                    type: 'string',
-                                    validationRules: 'required',
-                                    isNullable: false,
-                                },
-                            ],
+                            name: 'Both',
+                            code: 'both',
                         },
                     ])
                     const isLoading = ref(false)
@@ -1080,12 +619,7 @@
                         tableFormState.groupName = ''
                         // tableFormState.relationType = null
                         // tableFormState.relationTable = null
-                        tableFormState.relations = [
-                            {
-                                relationType: null,
-                                relationTable: null,
-                            },
-                        ]
+                        tableFormState.relations = []
                         tableFormState.fields = []
                     }
 
@@ -1123,28 +657,6 @@
                     function addTable() {
                         tables.value.push({ ...tableFormState })
                         for (const relation of tableFormState.relations) {
-                            relation.isOneToMany =
-                                relation.relationType?.code === 'one-to-many'
-                            relation.isManyToMany =
-                                relation.relationType?.code === 'many-to-many'
-                            relation.isParent = true
-                            relation.isChild = false
-                            relation.parent = {
-                                name: tableFormState.name,
-                                apiIdSingular: tableFormState.apiIdSingular,
-                                apiIdPlural: tableFormState.apiIdPlural,
-                                groupName: tableFormState.groupName,
-                                method: 'hasMany',
-                            }
-                            relation.child = {
-                                name: relation.relationTable?.name,
-                                apiIdSingular:
-                                    relation.relationTable?.apiIdSingular,
-                                apiIdPlural:
-                                    relation.relationTable?.apiIdPlural,
-                                groupName: relation.relationTable?.groupName,
-                                method: 'belongsTo',
-                            }
                             if (
                                 !relation.relationTable?.relations.some(
                                     (item) =>
@@ -1161,12 +673,6 @@
                                         apiIdPlural: tableFormState.apiIdPlural,
                                         groupName: tableFormState.groupName,
                                     },
-                                    child: relation.child,
-                                    parent: relation.parent,
-                                    isOneToMany: relation.isOneToMany,
-                                    isManyToMany: relation.isManyToMany,
-                                    isChild: true,
-                                    isParent: false,
                                 })
                             }
                         }
@@ -1176,12 +682,7 @@
                             apiIdSingular: '',
                             apiIdPlural: '',
                             gropName: '',
-                            relations: [
-                                {
-                                    relationType: null,
-                                    relationTable: null,
-                                },
-                            ],
+                            relations: [],
                             fields: [],
                         })
                     }
@@ -1196,7 +697,8 @@
                             tables.value[index].apiIdPlural
                         tableFormState.groupName = tables.value[index].groupName
                         tableFormState.fields = tables.value[index].fields
-                        tableFormState.relations = tables.value[index].relations
+                        tableFormState.relations =
+                            tables.value[index].relations || []
                     }
 
                     function updateTable() {
@@ -1204,28 +706,38 @@
                             ...tableFormState,
                         }
                         for (const relation of tableFormState.relations) {
+                            relation.isParent =
+                                relation.relationMode.code === 'parent'
+                            relation.isChild =
+                                relation.relationMode.code === 'child'
                             relation.isOneToMany =
                                 relation.relationType?.code === 'one-to-many'
                             relation.isManyToMany =
                                 relation.relationType?.code === 'many-to-many'
-                            relation.parent = {
-                                name: tableFormState.name,
-                                apiIdSingular: tableFormState.apiIdSingular,
-                                apiIdPlural: tableFormState.apiIdPlural,
-                                groupName: tableFormState.groupName,
-                            }
-                            relation.child = {
-                                name: relation.relationTable?.name,
-                                apiIdSingular:
-                                    relation.relationTable?.apiIdSingular,
-                                apiIdPlural:
-                                    relation.relationTable?.apiIdPlural,
-                                groupName: relation.relationTable?.groupName,
-                            }
-                            relation.isParent = true
-                            relation.isChild = false
+                            relation.parent = relation.isParent
+                                ? {
+                                      name: tableFormState.name,
+                                      apiIdSingular:
+                                          tableFormState.apiIdSingular,
+                                      apiIdPlural: tableFormState.apiIdPlural,
+                                      groupName: tableFormState.groupName,
+                                  }
+                                : { ...relation.relationTable }
+                            relation.child = relation.isChild
+                                ? {
+                                      name: tableFormState.name,
+                                      apiIdSingular:
+                                          tableFormState.apiIdSingular,
+                                      apiIdPlural: tableFormState.apiIdPlural,
+                                      groupName: tableFormState.groupName,
+                                  }
+                                : { ...relation.relationTable }
+                            const relationIndex = tables.value?.findIndex(
+                                (item) =>
+                                    item.name === relation.relationTable?.name
+                            )
                             if (
-                                !relation.relationTable?.relations?.some(
+                                !tables.value[relationIndex]?.relations?.some(
                                     (item) => {
                                         return (
                                             item.relationTable?.name ===
@@ -1234,22 +746,128 @@
                                     }
                                 )
                             ) {
-                                relation.relationTable?.relations?.push({
-                                    relationType: relation.relationType,
-                                    relationTable: {
-                                        name: tableFormState.name,
-                                        apiIdSingular:
-                                            tableFormState.apiIdSingular,
-                                        apiIdPlural: tableFormState.apiIdPlural,
-                                        groupName: tableFormState.groupName,
-                                        child: relation.child,
-                                        parent: relation.parent,
+                                if (tables.value[relationIndex].relations) {
+                                    tables.value[
+                                        relationIndex
+                                    ]?.relations?.push({
+                                        relationType: {
+                                            ...relation.relationType,
+                                        },
+                                        relationTable: {
+                                            name: tableFormState.name,
+                                            apiIdSingular:
+                                                tableFormState.apiIdSingular,
+                                            apiIdPlural:
+                                                tableFormState.apiIdPlural,
+                                            groupName: tableFormState.groupName,
+                                        },
+                                        relationMode:
+                                            relation.relationMode.code ===
+                                            'parent'
+                                                ? {
+                                                      name: 'Child',
+                                                      code: 'child',
+                                                  }
+                                                : {
+                                                      name: 'Parent',
+                                                      code: 'parent',
+                                                  },
                                         isOneToMany: relation.isOneToMany,
                                         isManyToMany: relation.isManyToMany,
-                                        isChild: true,
-                                        isParent: false,
-                                    },
-                                })
+                                        isChild:
+                                            relation.relationMode.code ===
+                                            'parent'
+                                                ? true
+                                                : false,
+                                        isParent:
+                                            relation.relationMode.code ===
+                                            'child'
+                                                ? true
+                                                : false,
+                                        parent: relation.isParent
+                                            ? {
+                                                  name: tableFormState.name,
+                                                  apiIdSingular:
+                                                      tableFormState.apiIdSingular,
+                                                  apiIdPlural:
+                                                      tableFormState.apiIdPlural,
+                                                  groupName:
+                                                      tableFormState.groupName,
+                                              }
+                                            : { ...relation.relationTable },
+                                        child: relation.isChild
+                                            ? {
+                                                  name: tableFormState.name,
+                                                  apiIdSingular:
+                                                      tableFormState.apiIdSingular,
+                                                  apiIdPlural:
+                                                      tableFormState.apiIdPlural,
+                                                  groupName:
+                                                      tableFormState.groupName,
+                                              }
+                                            : { ...relation.relationTable },
+                                    })
+                                } else {
+                                    tables.value[relationIndex].relations = [
+                                        {
+                                            relationType: {...relation.relationType},
+                                            relationTable: {
+                                                name: tableFormState.name,
+                                                apiIdSingular:
+                                                    tableFormState.apiIdSingular,
+                                                apiIdPlural:
+                                                    tableFormState.apiIdPlural,
+                                                groupName:
+                                                    tableFormState.groupName,
+                                            },
+                                            relationMode:
+                                                relation.relationMode.code ===
+                                                'parent'
+                                                    ? {
+                                                          name: 'Child',
+                                                          code: 'child',
+                                                      }
+                                                    : {
+                                                          name: 'Parent',
+                                                          code: 'parent',
+                                                      },
+                                            isOneToMany: relation.isOneToMany,
+                                            isManyToMany: relation.isManyToMany,
+                                            isChild:
+                                                relation.relationMode.code ===
+                                                'parent'
+                                                    ? true
+                                                    : false,
+                                            isParent:
+                                                relation.relationMode.code ===
+                                                'child'
+                                                    ? true
+                                                    : false,
+                                            parent: relation.isParent
+                                                ? {
+                                                      name: tableFormState.name,
+                                                      apiIdSingular:
+                                                          tableFormState.apiIdSingular,
+                                                      apiIdPlural:
+                                                          tableFormState.apiIdPlural,
+                                                      groupName:
+                                                          tableFormState.groupName,
+                                                  }
+                                                : { ...relation.relationTable },
+                                            child: relation.isChild
+                                                ? {
+                                                      name: tableFormState.name,
+                                                      apiIdSingular:
+                                                          tableFormState.apiIdSingular,
+                                                      apiIdPlural:
+                                                          tableFormState.apiIdPlural,
+                                                      groupName:
+                                                          tableFormState.groupName,
+                                                  }
+                                                : { ...relation.relationTable },
+                                        },
+                                    ]
+                                }
                             }
                         }
 
@@ -1271,7 +889,11 @@
                                         item.relationTable?.name !==
                                         tableFormState.name
                                 )
-                                table.relations = filtered
+                                table.relations = [
+                                    ...filtered?.filter(
+                                        (item) => item.relationTable
+                                    ),
+                                ]
                             }
                         }
                         isVisibleTableModal.value = false
@@ -1283,7 +905,6 @@
                             relations: [],
                             fields: [],
                         })
-                        console.log(tables.value)
                     }
 
                     function deleteTable(index) {
@@ -1314,71 +935,74 @@
                             const pivotNames = new Set() // Set to track unique pivot names
 
                             for (const table of tables.value) {
-                                for (const relation of table.relations) {
-                                    if (relation.relationTable) {
-                                        // Create pivot name in alphabetical order
-                                        const pivotName = [
-                                            table.apiIdSingular,
-                                            relation.relationTable
-                                                .apiIdSingular,
-                                        ]
-                                            .sort() // Alphabetically sort the two table names
-                                            .join('_') // Join with underscore
+                                if (table.relations)
+                                    for (const relation of table?.relations) {
+                                        if (relation.relationTable) {
+                                            // Create pivot name in alphabetical order
+                                            const pivotName = [
+                                                table.apiIdSingular,
+                                                relation.relationTable
+                                                    .apiIdSingular,
+                                            ]
+                                                .sort() // Alphabetically sort the two table names
+                                                .join('_') // Join with underscore
 
-                                        // Only add pivot if the name is not already in the pivotNames set
-                                        if (!pivotNames.has(pivotName)) {
-                                            const pivot = {
-                                                name: pivotName,
-                                                fields: [
-                                                    {
-                                                        type: 'foreignId',
-                                                        title: [
-                                                            table.apiIdSingular,
-                                                            relation
-                                                                .relationTable
-                                                                .apiIdSingular,
-                                                        ].sort()[0],
-                                                    },
-                                                    {
-                                                        type: 'foreignId',
-                                                        title: [
-                                                            table.apiIdSingular,
-                                                            relation
-                                                                .relationTable
-                                                                .apiIdSingular,
-                                                        ].sort()[1],
-                                                    },
-                                                    {
-                                                        type: 'primary',
-                                                        title: [
-                                                            [
+                                            // Only add pivot if the name is not already in the pivotNames set
+                                            if (!pivotNames.has(pivotName)) {
+                                                const pivot = {
+                                                    name: pivotName,
+                                                    fields: [
+                                                        {
+                                                            type: 'foreignId',
+                                                            title: [
                                                                 table.apiIdSingular,
                                                                 relation
                                                                     .relationTable
                                                                     .apiIdSingular,
-                                                            ].sort()[0] + '_id',
-                                                            [
+                                                            ].sort()[0],
+                                                        },
+                                                        {
+                                                            type: 'foreignId',
+                                                            title: [
                                                                 table.apiIdSingular,
                                                                 relation
                                                                     .relationTable
                                                                     .apiIdSingular,
-                                                            ].sort()[1] + '_id',
-                                                        ],
-                                                    },
-                                                ],
-                                            }
-                                            if (
-                                                relation.relationType?.code ===
-                                                'many-to-many'
-                                            ) {
-                                                pivots.push(pivot) // Add the pivot object to the array
-                                                pivotNames.add(pivotName) // Track the pivot name to prevent duplicates
+                                                            ].sort()[1],
+                                                        },
+                                                        {
+                                                            type: 'primary',
+                                                            title: [
+                                                                [
+                                                                    table.apiIdSingular,
+                                                                    relation
+                                                                        .relationTable
+                                                                        .apiIdSingular,
+                                                                ].sort()[0] +
+                                                                    '_id',
+                                                                [
+                                                                    table.apiIdSingular,
+                                                                    relation
+                                                                        .relationTable
+                                                                        .apiIdSingular,
+                                                                ].sort()[1] +
+                                                                    '_id',
+                                                            ],
+                                                        },
+                                                    ],
+                                                }
+                                                if (
+                                                    relation.relationType
+                                                        ?.code ===
+                                                    'many-to-many'
+                                                ) {
+                                                    pivots.push(pivot) // Add the pivot object to the array
+                                                    pivotNames.add(pivotName) // Track the pivot name to prevent duplicates
+                                                }
                                             }
                                         }
                                     }
-                                }
                             }
-
                             const body = {
                                 tables: tables.value,
                                 pivots: pivots,
@@ -1394,21 +1018,6 @@
                             isLoading.value = false
                             console.error(e)
                         }
-                    }
-                    const onColReorder = () => {
-                        toast.add({
-                            severity: 'success',
-                            summary: 'Column Reordered',
-                            life: 3000,
-                        })
-                    }
-                    const onRowReorder = (event) => {
-                        products.value = event.value
-                        toast.add({
-                            severity: 'success',
-                            summary: 'Rows Reordered',
-                            life: 3000,
-                        })
                     }
 
                     onMounted(() => {
@@ -1431,8 +1040,7 @@
                         sendTables,
                         isLoading,
                         deleteTable,
-                        onColReorder,
-                        onRowReorder,
+                        relationModes,
                     }
                 },
             })

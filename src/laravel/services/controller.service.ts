@@ -42,10 +42,12 @@ public function index(Request $request)
     return response()->json($data);
 }
 
-    ${relations
-        ?.map((relation: any) => {
-            if (relation.isOneToMany && relation.isParent) {
-                return `
+    ${
+        relations
+            ? relations
+                  ?.map((relation: any) => {
+                      if (relation.isOneToMany && relation.isParent) {
+                          return `
         /** get ${relation.child.apiIdPlural} */
         public function get${capitalizeFirstLetter(relation.child.apiIdPlural)}(Request $request,$id) {
             $limit = $request->input('limit', 10); // Har bir sahifada ko'rsatiladigan ${relation.child.apiIdPlural} soni
@@ -55,9 +57,11 @@ public function index(Request $request)
             return response()->json($${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural});
         }
         `
-            }
-        })
-        .join('\n')}
+                      }
+                  })
+                  .join('\n')
+            : ''
+    }
 
     /**
      * Yangi ${lowerCasedEntityName} qo'shadi.
@@ -67,11 +71,15 @@ public function index(Request $request)
         $request->validated();
 
         $${lowerCasedEntityName} = ${entityName}::create($request->all());
-        ${relations
-            ?.map((relation: any) => {
-                return `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->attach($request->input("${relation.relationTable?.apiIdPlural}"));`
-            })
-            .join('\n')}
+        ${
+            relations
+                ? relations
+                      ?.map((relation: any) => {
+                          return `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->attach($request->input("${relation.relationTable?.apiIdPlural}"));`
+                      })
+                      .join('\n')
+                : ''
+        }
         return response()->json($${lowerCasedEntityName}, 201);
     }
 
@@ -95,11 +103,11 @@ public function index(Request $request)
         $request->validated();
 
         $${lowerCasedEntityName}->update($request->all());
-         ${relations
-             ?.map((relation: any) => {
-                 return `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->sync($request->input("${relation.relationTable?.apiIdPlural}"));`
-             })
-             .join('\n')}
+         ${relations ? relations
+            ?.map((relation: any) => {
+                return `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->sync($request->input("${relation.relationTable?.apiIdPlural}"));`
+            })
+            .join('\n') : ""}
         return response()->json($${lowerCasedEntityName});
     }
 

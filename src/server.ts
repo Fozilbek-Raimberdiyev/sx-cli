@@ -1,8 +1,12 @@
 import express, { Request, Response } from 'express'
+import path from 'path'
 import cors from 'cors'
 const app = express()
 app.use(cors({ origin: '*' }))
 app.use(express.json())
+// Serve static files from the dist directory (your Vue build)
+app.use(express.static(path.resolve(__dirname, '../dist')))
+
 // get migration types
 app.get('/api/laravel/migration-types', async (req: Request, res: Response) => {
     const migration = await import('./laravel/mock/migration')
@@ -79,52 +83,61 @@ app.get('/build-scheme', (req: Request, res: Response) => {
 })
 // generate scheme
 app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
-    const { generateMigration, generatePivotMigration } = await import(
-        './laravel/services/test'
-    )
-    const {
-        generateModel,
-        generateFormRequest,
-        generateController,
-        generateRoute,
-    } = await import('./laravel')
-    const data = req.body
-    const tables = data.tables?.reverse()
-    tables.forEach((table: any) => {
-        // generateMigration(table, data.projectPath, table.fields)
-        generateModel(
-            table.name,
-            table.fields,
-            data.projectPath,
-            table.groupName,
-            table.relations
+    try {
+        const { generateMigration, generatePivotMigration } = await import(
+            './laravel/services/test'
         )
-        generateFormRequest(
-            table.name,
-            table.fields,
-            data.projectPath,
-            table.groupName
-        )
-        generateController(
-            table.name,
-            data.projectPath,
-            table.groupName,
-            table.relations
-        )
-        // generateRoute(
-        //     table.name,
-        //     table.apiIdPlural,
-        //     data.projectPath,
-        //     table.groupName
-        // )
-    })
+        const {
+            generateModel,
+            generateFormRequest,
+            generateController,
+            generateRoute,
+        } = await import('./laravel')
+        const data = req.body
+        const tables = data.tables
+        tables.forEach((table: any) => {
+            generateMigration(table, data.projectPath, table.fields)
+            generateModel(
+                table.name,
+                table.fields,
+                data.projectPath,
+                table.groupName,
+                table.relations
+            )
+            generateFormRequest(
+                table.name,
+                table.fields,
+                data.projectPath,
+                table.groupName
+            )
+            generateController(
+                table.name,
+                data.projectPath,
+                table.groupName,
+                table.relations
+            )
+            generateRoute(
+                table.name,
+                table.apiIdPlural,
+                data.projectPath,
+                table.groupName
+            )
+        })
 
-    // Process pivots
-    data.pivots.forEach((pivot: any) => {
-        // generatePivotMigration(pivot, data.projectPath)
-    })
-    // return  response with timeout
-    return res.status(200).send({ success: true, data: req.body })
+        // Process pivots
+        data.pivots.forEach((pivot: any) => {
+            generatePivotMigration(pivot, data.projectPath)
+        })
+        // return  response with timeout
+        return res.status(200).send({ success: true, data: req.body })
+    } catch (e) {
+        return res.status(500).send({ success: false, error: e })
+    }
+})
+
+// any get request redirect to dist/index.html
+app.get('/*', (req: Request, res: Response) => {
+    res.sendFile(path.resolve(__dirname, '../dist', 'index.html'))
 })
 app.listen(3000, async () => {
     console.log('Server is running on port 3000')
