@@ -26,34 +26,174 @@ export const relationTypes = [
 
 export const tablesMock = [
     {
-        name: 'Developer',
-        apiIdSingular: 'developer',
-        apiIdPlural: 'developers',
-        groupName: '',
-        relations: [],
-        fields: [
+        "name": "Post",
+        "apiIdSingular": "post",
+        "apiIdPlural": "posts",
+        "groupName": "",
+        "relations": [
             {
-                name: 'fullName',
-                type: 'string',
-                validationRules: 'required',
-                isNullable: false,
-            },
+                "relationType": {
+                    "name": "One to Many",
+                    "code": "one-to-many"
+                },
+                "relationTable": {
+                    "name": "Comment",
+                    "apiIdSingular": "comment",
+                    "apiIdPlural": "comments",
+                    "groupName": "",
+                    "relations": [
+                        {
+                            "relationType": {
+                                "name": "One to Many",
+                                "code": "one-to-many"
+                            },
+                            "relationTable": {
+                                "name": "Post",
+                                "apiIdSingular": "post",
+                                "apiIdPlural": "posts",
+                                "groupName": ""
+                            },
+                            "relationMode": {
+                                "name": "Child",
+                                "code": "child"
+                            },
+                            "isOneToMany": true,
+                            "isManyToMany": false,
+                            "isChild": true,
+                            "isParent": false,
+                            "parent": {
+                                "name": "Post",
+                                "apiIdSingular": "post",
+                                "apiIdPlural": "posts",
+                                "groupName": ""
+                            },
+                            "child": {
+                                "name": "Comment",
+                                "apiIdSingular": "comment",
+                                "apiIdPlural": "comments",
+                                "groupName": "",
+                                "relations": [],
+                                "fields": [
+                                    {
+                                        "name": "content",
+                                        "type": "longText",
+                                        "validationRules": "required",
+                                        "isNullable": true
+                                    }
+                                ],
+                                "gropName": ""
+                            }
+                        }
+                    ],
+                    "fields": [
+                        {
+                            "name": "content",
+                            "type": "longText",
+                            "validationRules": "required",
+                            "isNullable": true
+                        }
+                    ],
+                    "gropName": ""
+                },
+                "relationMode": {
+                    "name": "Parent",
+                    "code": "parent"
+                },
+                "isOneToMany": true,
+                "isManyToMany": false,
+                "isParent": true,
+                "isChild": false,
+                "parent": {
+                    "name": "Post",
+                    "apiIdSingular": "post",
+                    "apiIdPlural": "posts",
+                    "groupName": ""
+                },
+                "child": {
+                    "name": "Comment",
+                    "apiIdSingular": "comment",
+                    "apiIdPlural": "comments",
+                    "groupName": "",
+                    "relations": [],
+                    "fields": [
+                        {
+                            "name": "content",
+                            "type": "longText",
+                            "validationRules": "required",
+                            "isNullable": true
+                        }
+                    ],
+                    "gropName": ""
+                }
+            }
         ],
+        "fields": [
+            {
+                "name": "content",
+                "type": "longText",
+                "validationRules": "required",
+                "isNullable": true
+            }
+        ],
+        "gropName": ""
     },
     {
-        name: 'Skill',
-        apiIdSingular: 'skill',
-        apiIdPlural: 'skills',
-        groupName: '',
-        relations: [],
-        fields: [
+        "name": "Comment",
+        "apiIdSingular": "comment",
+        "apiIdPlural": "comments",
+        "groupName": "",
+        "relations": [
             {
-                name: 'title',
-                type: 'string',
-                validationRules: 'required',
-                isNullable: false,
-            },
+                "relationType": {
+                    "name": "One to Many",
+                    "code": "one-to-many"
+                },
+                "relationTable": {
+                    "name": "Post",
+                    "apiIdSingular": "post",
+                    "apiIdPlural": "posts",
+                    "groupName": ""
+                },
+                "relationMode": {
+                    "name": "Child",
+                    "code": "child"
+                },
+                "isOneToMany": true,
+                "isManyToMany": false,
+                "isChild": true,
+                "isParent": false,
+                "parent": {
+                    "name": "Post",
+                    "apiIdSingular": "post",
+                    "apiIdPlural": "posts",
+                    "groupName": ""
+                },
+                "child": {
+                    "name": "Comment",
+                    "apiIdSingular": "comment",
+                    "apiIdPlural": "comments",
+                    "groupName": "",
+                    "relations": [],
+                    "fields": [
+                        {
+                            "name": "content",
+                            "type": "longText",
+                            "validationRules": "required",
+                            "isNullable": true
+                        }
+                    ],
+                    "gropName": ""
+                }
+            }
         ],
-        gropName: '',
-    },
+        "fields": [
+            {
+                "name": "content",
+                "type": "longText",
+                "validationRules": "required",
+                "isNullable": true
+            }
+        ],
+        "gropName": ""
+    }
 ]

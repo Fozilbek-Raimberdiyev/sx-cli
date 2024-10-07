@@ -84,6 +84,11 @@ app.get('/build-scheme', (req: Request, res: Response) => {
 // generate scheme
 app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
     try {
+        const data = req.body;
+        const tables = data.tables;
+        if (!data.projectPath) {
+            return res.status(400).send({ success: false, message: 'Project path is required' })
+        }
         const { generateMigration, generatePivotMigration } = await import(
             './laravel/services/test'
         )
@@ -92,35 +97,47 @@ app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
             generateFormRequest,
             generateController,
             generateRoute,
-        } = await import('./laravel')
-        const data = req.body
-        const tables = data.tables
+
+        } = await import('./laravel');
+        const { generateVueComponent } =
+            await import('./vue');
+
         tables.forEach((table: any) => {
-            generateMigration(table, data.projectPath, table.fields)
-            generateModel(
+            // generateMigration(table, data.projectPath, table.fields)
+            // generateModel(
+            //     table.name,
+            //     table.fields,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
+            // generateFormRequest(
+            //     table.name,
+            //     table.fields,
+            //     data.projectPath,
+            //     table.groupName
+            // )
+            // generateController(
+            //     table.name,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
+            // generateRoute(
+            //     table.name,
+            //     table.apiIdPlural,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
+            generateVueComponent(
                 table.name,
-                table.fields,
                 data.projectPath,
                 table.groupName,
-                table.relations
-            )
-            generateFormRequest(
-                table.name,
-                table.fields,
-                data.projectPath,
-                table.groupName
-            )
-            generateController(
-                table.name,
-                data.projectPath,
-                table.groupName,
-                table.relations
-            )
-            generateRoute(
-                table.name,
+                table.apiIdSingular,
                 table.apiIdPlural,
-                data.projectPath,
-                table.groupName
+                table.fields,
+                table.relations
             )
         })
 

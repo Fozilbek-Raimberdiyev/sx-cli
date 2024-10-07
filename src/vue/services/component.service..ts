@@ -1,9 +1,20 @@
 import fs from "fs";
 import path from "path";
+import { capitalizeFirstLetter } from "../../utils/formatter";
 import { ensureDirectoryExists } from "../../utils/folder";
 import { formatVueFile } from "../../utils/prettier";
-export function generateVueComponent(entityName: string, projectPath: string, groupName: string, apiIdSingular: string, apiIdPlural: string, fields: any[]) {
-  const tempFields = [...fields, { name: "actions", type: "string", width: "200px" }];
+export function generateVueComponent(entityName: string, projectPath: string, groupName: string, apiIdSingular: string, apiIdPlural: string, fields: any[], relations?: any[]) {
+  const related: any[] = [];
+  if (relations) {
+    relations?.forEach((item) => {
+      if (item.isManyToMany || (item.isOneToMany && item.isParent)) {
+        related.push({ name: item.relationTable.apiIdPlural, isParent: item.isParent, isChild: item.isChild, apiIdPlural: item.relationTable.apiIdPlural });
+      } else if (item.isOneToMany && item.isChild) {
+        related.push({ name: item.parent.apiIdSingular, isParent: item.isParent, isChild: item.isChild, apiIdPlural: item.parent.apiIdPlural });
+      }
+    })
+  }
+  const tempFields = [...fields, { name: "actions", width: "200px" }, ...related.map((el) => ({ name: el.name, width: "200px" }))];
   // component path
   const componentFolderPath = path.join(projectPath, "resources", "vue", "modules", groupName.toLocaleLowerCase(), `${apiIdPlural}`);
   // home page
@@ -79,22 +90,23 @@ async function delete${apiIdSingular.slice(0).toUpperCase()}(id: number) {
     </div>
   </template>
   `;
-
+  const addOrUpdateOptionsMethods: string[] = [];
+  const addOrUpdateFields = [...fields, ...related?.map((el) => ({ name: el.name, value: el.isParent ? '[]' : '{}', options: el.apiIdPlural }))];
   const addOrUpdateTemplate = `
   <script setup lang="ts">
   import {ref, reactive,onMounted} from "vue";
   import type { UnwrapRef } from "vue";
   import axios, {AxiosResponse} from "axios";
   import { useRouter, useRoute } from "vue-router";
-  import {Form,FormItem, message,Input,Button} from "ant-design-vue";
+  import {Form,FormItem, message,Input,Button,Select} from "ant-design-vue";
   import type { Rule } from 'ant-design-vue/es/form';
   const router = useRouter();
   const route = useRoute();
   const isLoading = ref<boolean>(false);
   const formRef = ref();
   const formState:UnwrapRef<any> = reactive({
-  ${fields.map((el: any) => {
-    return `${el.name} : null`
+  ${addOrUpdateFields.map((el: any) => {
+    return `${el.name} : ${el.value || 'null'}`
   })}
   });
 
@@ -150,8 +162,21 @@ isLoading.value = false;
   console.error(e)
   }
    }
+
+  ${addOrUpdateFields?.filter((el: any) => el.options).map((el: any) => {
+    addOrUpdateOptionsMethods.push('get' + capitalizeFirstLetter(el.options) + '()');
+    return `
+    const ${el.options}  = ref<any[]>([]);
+    // get ${el.options}
+    async function get${capitalizeFirstLetter(el.options)}() {
+    const res:AxiosResponse = await axios.get("/api${groupName.toLocaleLowerCase()}/${el.options}");
+    ${el.options}.value = res.data;
+    }
+    `
+  })}
   onMounted(() => {
   getById();
+  ${addOrUpdateOptionsMethods.join('\n')}
   })
   </script>
   <template>
@@ -159,13 +184,13 @@ isLoading.value = false;
   <h1>${entityName}</h1>
   <Form @finish="route.params.id ? update${entityName}() : create${entityName}()"  ref="formRef" :model="formState" >
   <div class="grid grid-cols-12 gap-4 px-5 mt-6 w-full">
-  ${fields.map((el) => {
+  ${addOrUpdateFields.map((el) => {
     return `<div class="col-span-4 max-md:max-w-full">
           <FormItem ref="${el.name}" name="${el.name}">
             <p class="text-sm  max-md:max-w-full font-regular capitalize">
-              ${el.name}
+              ${capitalizeFirstLetter(el.name)}
             </p>
-            <Input v-model:value="formState.${el.name}" class="mt-2" placeholder=""></Input>
+            ${el.value === '{}' ? `<Select :fields-names="{value: 'id', label: 'title'}" :options="${el.options}" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : el.value === '[]' ? `<Select :fields-names="{value: 'id', label: 'title'}" mode="multiple" :options="${el.options}" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : `<Input v-model:value="formState.${el.name}" class="mt-2" placeholder=""></Input>`}
           </FormItem>
         </div>`
   }).join("")}

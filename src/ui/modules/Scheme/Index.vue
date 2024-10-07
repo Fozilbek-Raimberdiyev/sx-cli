@@ -16,8 +16,8 @@ import PDialog from 'primevue/dialog'
 import axios from 'axios'
 import { generatePivotRelations } from './helpers'
 import { relationModes, relationTypes, tablesMock } from './mock'
-const tables = ref<any[]>([])
-const isLoading = ref(false)
+const tables = ref<any[]>(tablesMock)
+const isLoading = ref<boolean>(false);
 const projectPath = new URLSearchParams(window.location.search).get(
     'projectPath'
 )
@@ -330,7 +330,7 @@ function deleteTable(index: number) {
 
 async function sendTables() {
     try {
-        isLoading.value = true
+        isLoading.value = true;
         const pivots = generatePivotRelations(JSON.parse(JSON.stringify(tables.value)))
         const body = {
             tables: _.cloneDeep(tables.value),
@@ -339,9 +339,10 @@ async function sendTables() {
         }
         const res = await axios.post('/api/laravel/build-scheme', body)
         isLoading.value = false
-    } catch (e) {
+    } catch (e: any) {
         isLoading.value = false;
-        console.error(e)
+        console.error(e);
+        showError('Error', e.response.data.message);
     }
 }
 
@@ -376,7 +377,7 @@ onMounted(() => {
 <template>
     <div>
         <div v-if="isLoading"
-            class="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center z-10 bg-[rgba(0,0,0,0.2)]">
+            class="absolute h-screen inset-0 flex justify-center items-center z-10 bg-[rgba(0,0,0,0.2)]">
             <p-progress-spinner style="width: 50px; height: 50px" strokeWidth="8" fill="transparent"
                 animationDuration=".5s" aria-label="Custom ProgressSpinner"></p-progress-spinner>
         </div>
