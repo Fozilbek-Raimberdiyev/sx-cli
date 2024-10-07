@@ -84,10 +84,12 @@ app.get('/build-scheme', (req: Request, res: Response) => {
 // generate scheme
 app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
     try {
-        const data = req.body;
-        const tables = data.tables;
+        const data = req.body
+        const tables = data.tables
         if (!data.projectPath) {
-            return res.status(400).send({ success: false, message: 'Project path is required' })
+            return res
+                .status(400)
+                .send({ success: false, message: 'Project path is required' })
         }
         const { generateMigration, generatePivotMigration } = await import(
             './laravel/services/test'
@@ -97,10 +99,9 @@ app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
             generateFormRequest,
             generateController,
             generateRoute,
-
-        } = await import('./laravel');
-        const { generateVueComponent } =
-            await import('./vue');
+        } = await import('./laravel')
+        const { generateVueComponent, generateRoute: generateVueRoute } =
+            await import('./vue')
 
         tables.forEach((table: any) => {
             // generateMigration(table, data.projectPath, table.fields)
@@ -139,11 +140,18 @@ app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
                 table.fields,
                 table.relations
             )
+            // generateVueRoute(
+            //     table.name,
+            //     table.apiIdPlural,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.apiIdSingular
+            // )
         })
 
         // Process pivots
         data.pivots.forEach((pivot: any) => {
-            generatePivotMigration(pivot, data.projectPath)
+            // generatePivotMigration(pivot, data.projectPath)
         })
         // return  response with timeout
         return res.status(200).send({ success: true, data: req.body })

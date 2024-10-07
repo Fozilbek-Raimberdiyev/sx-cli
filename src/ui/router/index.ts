@@ -18,11 +18,11 @@ const router = createRouter({
             name: 'Entity',
             component: () => import('@/modules/Entity/Index.vue'),
         },
-        {
-            path: "/logs",
-            name: "Logs",
-            component: () => import('@/modules/Logs/Index.vue')
-        }
+        // {
+        //     path: "/logs",
+        //     name: "Logs",
+        //     component: () => import('@/modules/Logs/Index.vue')
+        // }
     ],
 })
 

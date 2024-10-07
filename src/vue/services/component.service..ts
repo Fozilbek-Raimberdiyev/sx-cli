@@ -1,24 +1,55 @@
-import fs from "fs";
-import path from "path";
-import { capitalizeFirstLetter } from "../../utils/formatter";
-import { ensureDirectoryExists } from "../../utils/folder";
-import { formatVueFile } from "../../utils/prettier";
-export function generateVueComponent(entityName: string, projectPath: string, groupName: string, apiIdSingular: string, apiIdPlural: string, fields: any[], relations?: any[]) {
-  const related: any[] = [];
-  if (relations) {
-    relations?.forEach((item) => {
-      if (item.isManyToMany || (item.isOneToMany && item.isParent)) {
-        related.push({ name: item.relationTable.apiIdPlural, isParent: item.isParent, isChild: item.isChild, apiIdPlural: item.relationTable.apiIdPlural });
-      } else if (item.isOneToMany && item.isChild) {
-        related.push({ name: item.parent.apiIdSingular, isParent: item.isParent, isChild: item.isChild, apiIdPlural: item.parent.apiIdPlural });
-      }
-    })
-  }
-  const tempFields = [...fields, { name: "actions", width: "200px" }, ...related.map((el) => ({ name: el.name, width: "200px" }))];
-  // component path
-  const componentFolderPath = path.join(projectPath, "resources", "vue", "modules", groupName.toLocaleLowerCase(), `${apiIdPlural}`);
-  // home page
-  const indexTemplate = `
+import fs from 'fs'
+import path from 'path'
+import { capitalizeFirstLetter } from '../../utils/formatter'
+import { ensureDirectoryExists } from '../../utils/folder'
+import { formatVueFile } from '../../utils/prettier'
+export function generateVueComponent(
+    entityName: string,
+    projectPath: string,
+    groupName: string,
+    apiIdSingular: string,
+    apiIdPlural: string,
+    fields: any[],
+    relations?: any[]
+) {
+    const related: any[] = []
+    if (relations) {
+        relations?.forEach((item) => {
+            if (item.isManyToMany || (item.isOneToMany && item.isParent)) {
+                related.push({
+                    name: item.relationTable.apiIdPlural,
+                    isParent: item.isParent,
+                    isChild: item.isChild,
+                    apiIdPlural: item.relationTable.apiIdPlural,
+                    isManyToMany: item.isManyToMany,
+                })
+            } else if (item.isOneToMany && item.isChild) {
+                related.push({
+                    name: item.parent.apiIdSingular,
+                    isParent: item.isParent,
+                    isChild: item.isChild,
+                    apiIdPlural: item.parent.apiIdPlural,
+                    isManyToMany: item.isManyToMany,
+                })
+            }
+        })
+    }
+    const tempFields = [
+        ...fields,
+        { name: 'actions', width: '200px' },
+        ...related.map((el) => ({ name: el.name, width: '200px' })),
+    ]
+    // component path
+    const componentFolderPath = path.join(
+        projectPath,
+        'resources',
+        'vue',
+        'modules',
+        groupName.toLocaleLowerCase(),
+        `${apiIdPlural}`
+    )
+    // home page
+    const indexTemplate = `
   <script setup lang="ts">
   import { ref, onMounted} from "vue";
   import {useRouter} from "vue-router";
@@ -31,16 +62,20 @@ export function generateVueComponent(entityName: string, projectPath: string, gr
   const data = ref<any[]>([]);
   const page = ref(1);
   const limit = ref(50);
-  const columns = ref(${JSON.stringify((tempFields as any).map((el: any) => {
-    return {
-      title: el.name,
-      dataIndex: el.name,
-      key: el.name,
-      width: el.width
-    }
-  }), null, 2)});
+  const columns = ref(${JSON.stringify(
+      (tempFields as any).map((el: any) => {
+          return {
+              title: el.name,
+              dataIndex: el.name,
+              key: el.name,
+              width: el.width,
+          }
+      }),
+      null,
+      2
+  )});
   // get ${apiIdPlural}
-  async function get${apiIdPlural.slice(0).toUpperCase()}() {
+  async function get${capitalizeFirstLetter(apiIdPlural)}() {
   try {
   isLoading.value = true;
   const res:AxiosResponse = await axios.get("/api${groupName.toLocaleLowerCase()}/${apiIdPlural}?page=" +page.value + "&limit="+limit.value);
@@ -54,11 +89,11 @@ export function generateVueComponent(entityName: string, projectPath: string, gr
   }
 
   // delete ${apiIdSingular}
-async function delete${apiIdSingular.slice(0).toUpperCase()}(id: number) {
+async function delete${capitalizeFirstLetter(apiIdSingular)}(id: number) {
     try {
         isLoading.value = true;
         const res: AxiosResponse = await axios.delete("/api${groupName.toLocaleLowerCase()}/${apiIdPlural}/" + id);
-        get${apiIdPlural.slice(0).toUpperCase()}();
+        get${capitalizeFirstLetter(apiIdPlural)}();
         isLoading.value = false;
     } catch (e) {
         isLoading.value = false;
@@ -67,7 +102,7 @@ async function delete${apiIdSingular.slice(0).toUpperCase()}(id: number) {
 }
 
   onMounted(() => {
-    get${apiIdPlural.slice(0).toUpperCase()}();
+    get${capitalizeFirstLetter(apiIdPlural)}();
   })
   </script>
   <template>
@@ -83,16 +118,24 @@ async function delete${apiIdSingular.slice(0).toUpperCase()}(id: number) {
       <template #bodyCell="{ column, text, record }">
                 <div class="flex items-center gap-1" v-if="column.dataIndex === 'actions'">
                     <Button @click="router.push('${groupName.toLocaleLowerCase()}/${apiIdPlural}/' + record.id+'/update')" type="primary">Edit</Button>
-                    <Button @click="delete${apiIdSingular.slice(0).toUpperCase()}(record.id)" danger>Delete</Button>
+                    <Button @click="delete${capitalizeFirstLetter(apiIdSingular)}(record.id)" danger>Delete</Button>
                 </div>
             </template>
       </Table>
     </div>
   </template>
-  `;
-  const addOrUpdateOptionsMethods: string[] = [];
-  const addOrUpdateFields = [...fields, ...related?.map((el) => ({ name: el.name, value: el.isParent ? '[]' : '{}', options: el.apiIdPlural }))];
-  const addOrUpdateTemplate = `
+  `
+    const addOrUpdateOptionsMethods: string[] = []
+    const addOrUpdateFields = [
+        ...fields,
+        ...related?.map((el) => ({
+            name: el.name,
+            value: el.isParent ? '[]' : '{}',
+            isManyToMany: el.isManyToMany,
+            options: el.apiIdPlural,
+        })),
+    ]
+    const addOrUpdateTemplate = `
   <script setup lang="ts">
   import {ref, reactive,onMounted} from "vue";
   import type { UnwrapRef } from "vue";
@@ -106,7 +149,7 @@ async function delete${apiIdSingular.slice(0).toUpperCase()}(id: number) {
   const formRef = ref();
   const formState:UnwrapRef<any> = reactive({
   ${addOrUpdateFields.map((el: any) => {
-    return `${el.name} : ${el.value || 'null'}`
+      return `${el.name} : ${el.value || 'null'}`
   })}
   });
 
@@ -154,6 +197,21 @@ isLoading.value = false;
   for(const key in res.data) {
   formState[key] = res.data[key];
   }
+  ${
+      relations
+          ? relations?.map((rel) => {
+                if (rel.isOneToMany && rel.isChild) {
+                    return `formState.${rel.parent.apiIdSingular} = res.data['${rel.parent.apiIdSingular}']?.id || res.data.${rel.parent.apiIdSingular}_id`
+                }
+                if (rel.isOneToMany && rel.isParent) {
+                    return `formState.${rel.child.apiIdPlural} = res.data?.${rel.relationTable.apiIdPlural}?.map((el: any) => el.id) || res.data.${rel.relationTable.apiIdPlural}_ids`
+                }
+                if (rel.isManyToMany) {
+                    return `formState.${rel.relationTable.apiIdPlural} = res.data?.${rel.relationTable.apiIdPlural}?.map((el: any) => el.id) || res.data.${rel.relationTable.apiIdPlural}_ids`
+                }
+            })
+          : ''
+  }
   isLoading.value = false;
   }
 
@@ -163,17 +221,21 @@ isLoading.value = false;
   }
    }
 
-  ${addOrUpdateFields?.filter((el: any) => el.options).map((el: any) => {
-    addOrUpdateOptionsMethods.push('get' + capitalizeFirstLetter(el.options) + '()');
-    return `
-    const ${el.options}  = ref<any[]>([]);
+  ${addOrUpdateFields
+      ?.filter((el: any) => el.options)
+      .map((el: any) => {
+          addOrUpdateOptionsMethods.push(
+              'get' + capitalizeFirstLetter(el.options) + '()'
+          )
+          return `
+    const ${el.options}List  = ref<any[]>([]);
     // get ${el.options}
     async function get${capitalizeFirstLetter(el.options)}() {
     const res:AxiosResponse = await axios.get("/api${groupName.toLocaleLowerCase()}/${el.options}");
-    ${el.options}.value = res.data;
+    ${el.options}List.value = res.data.data || [];
     }
     `
-  })}
+      })}
   onMounted(() => {
   getById();
   ${addOrUpdateOptionsMethods.join('\n')}
@@ -184,16 +246,18 @@ isLoading.value = false;
   <h1>${entityName}</h1>
   <Form @finish="route.params.id ? update${entityName}() : create${entityName}()"  ref="formRef" :model="formState" >
   <div class="grid grid-cols-12 gap-4 px-5 mt-6 w-full">
-  ${addOrUpdateFields.map((el) => {
-    return `<div class="col-span-4 max-md:max-w-full">
+  ${addOrUpdateFields
+      .map((el) => {
+          return `<div class="col-span-4 max-md:max-w-full">
           <FormItem ref="${el.name}" name="${el.name}">
             <p class="text-sm  max-md:max-w-full font-regular capitalize">
               ${capitalizeFirstLetter(el.name)}
             </p>
-            ${el.value === '{}' ? `<Select :fields-names="{value: 'id', label: 'title'}" :options="${el.options}" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : el.value === '[]' ? `<Select :fields-names="{value: 'id', label: 'title'}" mode="multiple" :options="${el.options}" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : `<Input v-model:value="formState.${el.name}" class="mt-2" placeholder=""></Input>`}
+            ${el.value === '{}' ? `<Select :field-names="{value: 'id', label: 'title'}" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : el.value === '[]' || el.isManyToMany ? `<Select :field-names="{value: 'id', label: 'title'}" mode="multiple" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : `<Input v-model:value="formState.${el.name}" class="mt-2" placeholder=""></Input>`}
           </FormItem>
         </div>`
-  }).join("")}
+      })
+      .join('')}
   </div>
   <div class="flex items-center justify-end gap-1">
     <Button>Cancel</Button>
@@ -204,26 +268,32 @@ isLoading.value = false;
   </template>
   `
 
-  const indexComponentPath = path.join(componentFolderPath, 'Index.vue');
-  // Ensure the components directory exists
-  ensureDirectoryExists(indexComponentPath);
+    const indexComponentPath = path.join(componentFolderPath, 'Index.vue')
+    // Ensure the components directory exists
+    ensureDirectoryExists(indexComponentPath)
 
+    fs.writeFileSync(indexComponentPath, indexTemplate, 'utf8')
+    formatVueFile(indexComponentPath)
+    // log to console that component was created successfully with green color
+    console.log(
+        `\x1b[32m${componentFolderPath}\Index.vue component created successfully!\x1b[0m`
+    )
 
-  fs.writeFileSync(indexComponentPath, indexTemplate, "utf8");
-  formatVueFile(indexComponentPath);
-  // log to console that component was created successfully with green color
-  console.log(`\x1b[32m${componentFolderPath}\Index.vue component created successfully!\x1b[0m`);
-
-  // add or update page 
-  const addOrUpdateComponentPath = path.join(componentFolderPath, "AddOrUpdate.vue");
-  ensureDirectoryExists(addOrUpdateComponentPath);
-  fs.writeFileSync(addOrUpdateComponentPath, addOrUpdateTemplate, "utf8");
-  formatVueFile(addOrUpdateComponentPath);
-  // log to console that component was created successfully with green color
-  console.log(`\x1b[32m${componentFolderPath}\AddOrUpdate.vue component created successfully!\x1b[0m`);
-  // import ${entityName}AddOrUpdate from "@/modules/${groupName}/${apiIdPlural}/AddOrUpdate.vue";
-  // generate pages
-  const pagesIndex = `
+    // add or update page
+    const addOrUpdateComponentPath = path.join(
+        componentFolderPath,
+        'AddOrUpdate.vue'
+    )
+    ensureDirectoryExists(addOrUpdateComponentPath)
+    fs.writeFileSync(addOrUpdateComponentPath, addOrUpdateTemplate, 'utf8')
+    formatVueFile(addOrUpdateComponentPath)
+    // log to console that component was created successfully with green color
+    console.log(
+        `\x1b[32m${componentFolderPath}\AddOrUpdate.vue component created successfully!\x1b[0m`
+    )
+    // import ${entityName}AddOrUpdate from "@/modules/${groupName}/${apiIdPlural}/AddOrUpdate.vue";
+    // generate pages
+    const pagesIndex = `
   <script setup lang="ts">
   import ${entityName}Index from "@/modules${groupName}/${apiIdPlural}/Index.vue";
   </script>
@@ -231,19 +301,41 @@ isLoading.value = false;
   <${entityName}Index/>
   </template>
   `
-  ensureDirectoryExists(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/Index.vue`);
-  fs.writeFileSync(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/Index.vue`, pagesIndex, "utf8");
-  formatVueFile(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/Index.vue`);
+    ensureDirectoryExists(
+        projectPath +
+            `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/Index.vue`
+    )
+    fs.writeFileSync(
+        projectPath +
+            `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/Index.vue`,
+        pagesIndex,
+        'utf8'
+    )
+    formatVueFile(
+        projectPath +
+            `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/Index.vue`
+    )
 
-  const pagesAddOrUpdate = `
+    const pagesAddOrUpdate = `
   <script setup lang="ts">
   import ${entityName}AddOrUpdate from "@/modules${groupName}/${apiIdPlural}/AddOrUpdate.vue";
   </script>
   <template>
   <${entityName}AddOrUpdate/>
   </template>
-  `;
-  ensureDirectoryExists(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/AddOrUpdate.vue`);
-  fs.writeFileSync(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/AddOrUpdate.vue`, pagesAddOrUpdate, "utf8");
-  formatVueFile(projectPath + `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/AddOrUpdate.vue`);
+  `
+    ensureDirectoryExists(
+        projectPath +
+            `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/AddOrUpdate.vue`
+    )
+    fs.writeFileSync(
+        projectPath +
+            `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/AddOrUpdate.vue`,
+        pagesAddOrUpdate,
+        'utf8'
+    )
+    formatVueFile(
+        projectPath +
+            `/resources/vue/pages${groupName.toLocaleLowerCase()}/${apiIdPlural}/AddOrUpdate.vue`
+    )
 }
