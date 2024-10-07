@@ -27,7 +27,7 @@
                     <div
                         class="hidden md:block text-sm md:text-md text-black dark:text-white"
                     >
-                        John Doe
+                        Fozilbek Raimberdiyev
                     </div>
                 </div>
             </div>

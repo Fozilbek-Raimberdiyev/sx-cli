@@ -131,6 +131,7 @@ app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
         // return  response with timeout
         return res.status(200).send({ success: true, data: req.body })
     } catch (e) {
+        console.error(e)
         return res.status(500).send({ success: false, error: e })
     }
 })

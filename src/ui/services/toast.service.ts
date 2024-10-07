@@ -2,7 +2,7 @@ import { useToast as usePrimeToast } from 'primevue/usetoast'
 export function useToast() {
     const toast = usePrimeToast()
     function showSuccess(
-        headTitle: '',
+        headTitle: string,
         toastContent: string,
         duration: number = 3000
     ) {
@@ -15,7 +15,7 @@ export function useToast() {
     }
 
     function showError(
-        headTitle: '',
+        headTitle: string,
         toastContent: string,
         duration: number = 3000
     ) {
@@ -28,7 +28,7 @@ export function useToast() {
     }
 
     function showInfo(
-        headTitle: '',
+        headTitle: string,
         toastContent: string,
         duration: number = 3000
     ) {
@@ -40,7 +40,7 @@ export function useToast() {
         })
     }
 
-    function showWarn( headTitle: '', toastContent: string, duration: number = 3000) {
+    function showWarn( headTitle: string, toastContent: string, duration: number = 3000) {
         toast.add({
             severity: 'warn',
             summary: headTitle,

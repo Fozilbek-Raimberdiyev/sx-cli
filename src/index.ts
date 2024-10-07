@@ -15,7 +15,7 @@ program
     .command('start server')
     .description('start dev server')
     .action(async () => {
-        execSync('yarn dev', { stdio: 'inherit', cwd: __dirname })
+        execSync('yarn start', { stdio: 'inherit', cwd: __dirname })
     })
 
 // setup tailwind
