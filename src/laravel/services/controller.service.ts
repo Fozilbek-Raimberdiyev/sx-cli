@@ -76,28 +76,27 @@ public function index(Request $request)
      */
     public function store(${entityName}FormRequest $request)
     {
-        $request->validated();
         ${
-            relations
+            relations?.length
                 ? relations
                       .map((rel) => {
                           if (rel.isOneToMany && rel.isChild) {
                               return `
                           $${rel.parent.apiIdSingular}Id = $request->input('${rel.parent.apiIdSingular}');
-                          $${lowerCasedEntityName} = new ${entityName}($request->all());
+                          $${lowerCasedEntityName} = new ${entityName}($request->validated());
                         $${lowerCasedEntityName}->${rel.parent.apiIdSingular}_id = $${rel.parent.apiIdSingular}Id;
                         $${lowerCasedEntityName}->save();
                           `
                           } else {
-                              return `$${lowerCasedEntityName} = ${entityName}::create($request->all());`
+                              return `$${lowerCasedEntityName} = ${entityName}::create($request->validated());`
                           }
                       })
                       .join('\n')
-                : `$${lowerCasedEntityName} = ${entityName}::create($request->all());`
+                : `$${lowerCasedEntityName} = ${entityName}::create($request->validated());`
         };
         
         ${
-            relations
+            relations?.length
                 ? relations
                       ?.map((relation: any) => {
                           return relation.isManyToMany
@@ -131,32 +130,32 @@ public function index(Request $request)
      * Muayyan ${lowerCasedEntityName}ni yangilaydi.
      */
     public function update(${entityName}FormRequest $request, $id){
-        $request->validated();
         $${lowerCasedEntityName} = ${entityName}::findOrFail($id);
-        ${relations
+        ${
+            relations?.length
                 ? relations.map((rel) => {
                       if (rel.isOneToMany && rel.isChild) {
                           return `
                           $${rel.parent.apiIdSingular}Id = $request->input('${rel.parent.apiIdSingular}');
-                          $${lowerCasedEntityName}->update($request->all());
+                          $${lowerCasedEntityName}->update($request->validated());
                         $${lowerCasedEntityName}->${rel.parent.apiIdSingular}_id = $${rel.parent.apiIdSingular}Id;
                         $${lowerCasedEntityName}->save();
                           `
                       } else {
-                          return `$${lowerCasedEntityName}->update($request->all());`
+                          return `$${lowerCasedEntityName}->update($request->validated());`
                       }
                   })
-                : ''
+                : `$${lowerCasedEntityName}->update($request->validated());`
         }
         
          ${
-             relations
+             relations?.length
                  ? relations
                        ?.map((relation: any) => {
                            return relation.isManyToMany
                                ? `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->sync($request->input("${relation.relationTable?.apiIdPlural}"));`
                                : relation.isOneToMany && relation.isParent
-                                 ? `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->sync($request->input("${relation.relationTable?.apiIdPlural}"));`
+                                 ? ``
                                  : ''
                        })
                        .join('\n')

@@ -22,6 +22,7 @@ export function generateVueComponent(
                     isChild: item.isChild,
                     apiIdPlural: item.relationTable.apiIdPlural,
                     isManyToMany: item.isManyToMany,
+                    isOneToMany: item.isOneToMany,
                 })
             } else if (item.isOneToMany && item.isChild) {
                 related.push({
@@ -30,6 +31,7 @@ export function generateVueComponent(
                     isChild: item.isChild,
                     apiIdPlural: item.parent.apiIdPlural,
                     isManyToMany: item.isManyToMany,
+                    isOneToMany: item.isOneToMany,
                 })
             }
         })
@@ -130,7 +132,13 @@ async function delete${capitalizeFirstLetter(apiIdSingular)}(id: number) {
         ...fields,
         ...related?.map((el) => ({
             name: el.name,
-            value: el.isParent ? '[]' : '{}',
+            value: el.isManyToMany
+                ? '[]'
+                : el.isOneToMany && el.isParent
+                  ? '[]'
+                  : el.isOneToMany && el.isChild
+                    ? '{}'
+                    : 'null',
             isManyToMany: el.isManyToMany,
             options: el.apiIdPlural,
         })),

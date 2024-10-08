@@ -5,6 +5,7 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "strict": true,
+        "strictFunctionTypes": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "baseUrl": ".",

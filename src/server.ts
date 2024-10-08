@@ -118,12 +118,12 @@ app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
             //     data.projectPath,
             //     table.groupName
             // )
-            // generateController(
-            //     table.name,
-            //     data.projectPath,
-            //     table.groupName,
-            //     table.relations
-            // )
+            generateController(
+                table.name,
+                data.projectPath,
+                table.groupName,
+                table.relations
+            )
             // generateRoute(
             //     table.name,
             //     table.apiIdPlural,
@@ -131,15 +131,15 @@ app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
             //     table.groupName,
             //     table.relations
             // )
-            generateVueComponent(
-                table.name,
-                data.projectPath,
-                table.groupName,
-                table.apiIdSingular,
-                table.apiIdPlural,
-                table.fields,
-                table.relations
-            )
+            // generateVueComponent(
+            //     table.name,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.apiIdSingular,
+            //     table.apiIdPlural,
+            //     table.fields,
+            //     table.relations
+            // )
             // generateVueRoute(
             //     table.name,
             //     table.apiIdPlural,
