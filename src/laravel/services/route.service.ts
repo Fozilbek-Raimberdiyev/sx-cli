@@ -25,10 +25,10 @@ Route::get('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName
 // Muayyan ${entityName.toLocaleLowerCase()}ni yangilash
 Route::put('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'update']); 
 // Muayyan ${entityName.toLocaleLowerCase()}ni o'chirish
-Route::delete('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'destroy']);
+Route::delete('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}', [${entityName}Controller::class, 'destroy']); */
 ${relations?.length ? relations.map((relation) => {
-    return (relation.isOneToMany && relation.isParent) || relation.manyToMany ? `//Muayyan ${entityName.toLocaleLowerCase()} ning ${relation.relationTable.apiIdPlural} ro'yxatini olish \n Route::get('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}/${relation.relationTable.apiIdPlural}', [${entityName}Controller::class, 'show${capitalizeFirstLetter(relation.relationTable.apiIdPlural)}']); */` : '*/'
-  }) : ''}
+    return (relation.isOneToMany && relation.isParent) || relation.manyToMany ? `//Muayyan ${entityName.toLocaleLowerCase()} ning ${relation.relationTable.apiIdPlural} ro'yxatini olish \n  //Route::get('${groupName.toLocaleLowerCase()}/${apiIdPlural}/{id}/${relation.relationTable.apiIdPlural}', [${entityName}Controller::class, 'show${capitalizeFirstLetter(relation.relationTable.apiIdPlural)}']);` : ''
+  }).join('') : ''}
 `;
   templates.push(template);
   // Faylni o'qish va qo'shish

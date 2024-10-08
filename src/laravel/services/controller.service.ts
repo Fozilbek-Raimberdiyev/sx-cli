@@ -144,7 +144,7 @@ public function index(Request $request)
                       } else {
                           return `$${lowerCasedEntityName}->update($request->validated());`
                       }
-                  })
+                  }).join('\n')
                 : `$${lowerCasedEntityName}->update($request->validated());`
         }
         

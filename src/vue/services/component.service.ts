@@ -67,7 +67,7 @@ export function generateVueComponent(
   const columns = ref(${JSON.stringify(
       (tempFields as any).map((el: any) => {
           return {
-              title: el.name,
+              title: capitalizeFirstLetter(el.name),
               dataIndex: el.name,
               key: el.name,
               width: el.width,
@@ -108,8 +108,8 @@ async function delete${capitalizeFirstLetter(apiIdSingular)}(id: number) {
   })
   </script>
   <template>
-    <div class="m-2">
-    <div class="flex justify-end">
+    <div class="my-2">
+    <div class="flex justify-end mb-2">
         <Button
           @click="router.push('${groupName.toLocaleLowerCase()}/${apiIdPlural}/create')"
           type="primary"
