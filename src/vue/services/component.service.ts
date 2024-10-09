@@ -129,7 +129,10 @@ async function delete${capitalizeFirstLetter(apiIdSingular)}(id: number) {
   `
     const addOrUpdateOptionsMethods: string[] = []
     const addOrUpdateFields = [
-        ...fields,
+        ...fields.map((el) => ({
+            ...el,
+            isVisible: true,
+        })),
         ...related?.map((el) => ({
             name: el.name,
             value: el.isManyToMany
@@ -141,6 +144,13 @@ async function delete${capitalizeFirstLetter(apiIdSingular)}(id: number) {
                     : 'null',
             isManyToMany: el.isManyToMany,
             options: el.apiIdPlural,
+            isVisible: el.isManyToMany
+                ? true
+                : el.isOneToMany && el.isParent
+                  ? true
+                  : el.isOneToMany && el.isChild
+                    ? false
+                    : true,
         })),
     ]
     const addOrUpdateTemplate = `
@@ -156,9 +166,11 @@ async function delete${capitalizeFirstLetter(apiIdSingular)}(id: number) {
   const isLoading = ref<boolean>(false);
   const formRef = ref();
   const formState:UnwrapRef<any> = reactive({
-  ${addOrUpdateFields.map((el: any) => {
-      return `${el.name} : ${el.value || 'null'}`
-  })}
+  ${addOrUpdateFields
+      .filter((el: any) => el.isVisible)
+      .map((el: any) => {
+          return el.isVisible ? `${el.name} : ${el.value || 'null'}` : ''
+      })}
   });
 
   // create ${entityName}
@@ -243,7 +255,8 @@ isLoading.value = false;
     ${el.options}List.value = res.data.data || [];
     }
     `
-      })}
+      })
+      .join('\n')}
   onMounted(() => {
   getById();
   ${addOrUpdateOptionsMethods.join('\n')}
@@ -256,7 +269,7 @@ isLoading.value = false;
   <div class="grid grid-cols-12 gap-4 px-5 mt-6 w-full">
   ${addOrUpdateFields
       .map((el) => {
-          return `<div class="col-span-4 max-md:max-w-full">
+          return `<div class="col-span-4 max-md:max-w-full" v-if="${el.isVisible}">
           <FormItem ref="${el.name}" name="${el.name}">
             <p class="text-sm  max-md:max-w-full font-regular capitalize">
               ${capitalizeFirstLetter(el.name)}

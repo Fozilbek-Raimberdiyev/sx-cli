@@ -133,18 +133,20 @@ public function index(Request $request)
         $${lowerCasedEntityName} = ${entityName}::findOrFail($id);
         ${
             relations?.length
-                ? relations.map((rel) => {
-                      if (rel.isOneToMany && rel.isChild) {
-                          return `
+                ? relations
+                      .map((rel) => {
+                          if (rel.isOneToMany && rel.isChild) {
+                              return `
                           $${rel.parent.apiIdSingular}Id = $request->input('${rel.parent.apiIdSingular}');
                           $${lowerCasedEntityName}->update($request->validated());
                         $${lowerCasedEntityName}->${rel.parent.apiIdSingular}_id = $${rel.parent.apiIdSingular}Id;
                         $${lowerCasedEntityName}->save();
                           `
-                      } else {
-                          return `$${lowerCasedEntityName}->update($request->validated());`
-                      }
-                  }).join('\n')
+                          } else {
+                              return `$${lowerCasedEntityName}->update($request->validated());`
+                          }
+                      })
+                      .join('\n')
                 : `$${lowerCasedEntityName}->update($request->validated());`
         }
         

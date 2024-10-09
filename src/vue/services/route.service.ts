@@ -1,13 +1,26 @@
-import fs from "fs";
-import path from "path";
-import { ensureDirectoryExists } from "../../utils/folder";
-import { formatTsFile } from "../../utils/prettier"
-export function generateRoute(entityName: string, apiIdPlural: string, projectPath: string, groupName: string = "/admin", apiIdSingular: string) {
-  const routesPath = path.join(projectPath, "resources", "vue", "router", "routes", `${groupName.toLocaleLowerCase()}/${apiIdPlural}.ts`);
-  // Ensure the router directory exists
-  ensureDirectoryExists(routesPath);
+import fs from 'fs'
+import path from 'path'
+import { ensureDirectoryExists } from '../../utils/folder'
+// import { formatTsFile } from "../../utils/prettier"
+export function generateRoute(
+    entityName: string,
+    apiIdPlural: string,
+    projectPath: string,
+    groupName: string = '/admin',
+    apiIdSingular: string
+) {
+    const routesPath = path.join(
+        projectPath,
+        'resources',
+        'vue',
+        'router',
+        'routes',
+        `${groupName.toLocaleLowerCase()}/${apiIdPlural}.ts`
+    )
+    // Ensure the router directory exists
+    ensureDirectoryExists(routesPath)
 
-  const routeTemplate = `
+    const routeTemplate = `
   import { h, resolveComponent } from "vue";
 export const ${apiIdSingular}Routes = {
   path: "/${apiIdPlural}",
@@ -35,8 +48,8 @@ export const ${apiIdSingular}Routes = {
     }
   ]
 }
-`;
+`
 
-  fs.appendFileSync(routesPath, routeTemplate, "utf8");
-  console.log(`Route added to ${routesPath}`);
+    fs.writeFileSync(routesPath, routeTemplate, 'utf8')
+    console.log(`Route added to ${routesPath}`)
 }

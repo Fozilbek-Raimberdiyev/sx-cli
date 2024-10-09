@@ -107,62 +107,62 @@ app.post('/api/laravel/build-scheme', async (req: Request, res: Response) => {
         } = await import('./vue')
 
         tables.forEach((table: any) => {
-            generateMigration(table, data.projectPath, table.fields)
-            generateModel(
-                table.name,
-                table.fields,
-                data.projectPath,
-                table.groupName,
-                table.relations
-            )
-            generateFormRequest(
-                table.name,
-                table.fields,
-                data.projectPath,
-                table.groupName
-            )
+            // generateMigration(table, data.projectPath, table.fields)
+            // generateModel(
+            //     table.name,
+            //     table.fields,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
+            // generateFormRequest(
+            //     table.name,
+            //     table.fields,
+            //     data.projectPath,
+            //     table.groupName
+            // )
             generateController(
                 table.name,
                 data.projectPath,
                 table.groupName,
                 table.relations
             )
-            generateRoute(
-                table.name,
-                table.apiIdPlural,
-                data.projectPath,
-                table.groupName,
-                table.relations
-            )
-            generateVueComponent(
-                table.name,
-                data.projectPath,
-                table.groupName,
-                table.apiIdSingular,
-                table.apiIdPlural,
-                table.fields,
-                table.relations
-            )
-            generateVueRoute(
-                table.name,
-                table.apiIdPlural,
-                data.projectPath,
-                table.groupName,
-                table.apiIdSingular
-            )
+            // generateRoute(
+            //     table.name,
+            //     table.apiIdPlural,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
+            // generateVueComponent(
+            //     table.name,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.apiIdSingular,
+            //     table.apiIdPlural,
+            //     table.fields,
+            //     table.relations
+            // )
+            // generateVueRoute(
+            //     table.name,
+            //     table.apiIdPlural,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.apiIdSingular
+            // )
         })
-        generateAppVueContent(
-            tables.map((table: any) => {
-                return {
-                    name: table.apiIdPlural,
-                    groupName: table.groupName,
-                }
-            }),
-            data.projectPath
-        )
+        // generateAppVueContent(
+        //     tables.map((table: any) => {
+        //         return {
+        //             name: table.apiIdPlural,
+        //             groupName: table.groupName,
+        //         }
+        //     }),
+        //     data.projectPath
+        // )
         // Process pivots
         data.pivots.forEach((pivot: any) => {
-            generatePivotMigration(pivot, data.projectPath)
+            // generatePivotMigration(pivot, data.projectPath)
         })
         // return  response with timeout
         return res.status(200).send({ success: true, data: req.body })

@@ -329,15 +329,16 @@ function deleteTable(index: number) {
 }
 
 async function sendTables() {
+    console.log(tables.value)
     try {
         isLoading.value = true;
-        const pivots = generatePivotRelations(JSON.parse(JSON.stringify(tables.value)))
+        const pivots = generatePivotRelations(_.cloneDeep(tables.value));
         const body = {
             tables: _.cloneDeep(tables.value),
             pivots: pivots,
             projectPath,
         }
-        const res = await axios.post('/api/laravel/build-scheme', body)
+        const res = await axios.post('/api/laravel/build-scheme', body);
         isLoading.value = false
     } catch (e: any) {
         isLoading.value = false;
