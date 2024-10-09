@@ -1,6 +1,10 @@
 import { ensureDirectoryExists } from '../../utils/folder'
 import { replaceSlashes, capitalizeFirstLetter } from '../../utils/formatter'
 import { formatPhpFile } from '../../utils/prettier'
+import {
+    controllerStoreTemplate,
+    controllerUpdateTemplate,
+} from '../templates/controller'
 import fs from 'fs'
 import path from 'path'
 export function generateController(
@@ -75,43 +79,31 @@ public function index(Request $request)
      * Yangi ${lowerCasedEntityName} qo'shadi.
      */
     public function store(${entityName}FormRequest $request)
-    {
-        ${
-            relations?.length
-                ? relations
-                      .map((rel) => {
-                          if (rel.isOneToMany && rel.isChild) {
-                              return `
-                          $${rel.parent.apiIdSingular}Id = $request->input('${rel.parent.apiIdSingular}');
-                          $${lowerCasedEntityName} = new ${entityName}($request->validated());
-                        $${lowerCasedEntityName}->${rel.parent.apiIdSingular}_id = $${rel.parent.apiIdSingular}Id;
-                        $${lowerCasedEntityName}->save();
-                          `
-                          } else {
-                              return `$${lowerCasedEntityName} = ${entityName}::create($request->validated());`
-                          }
-                      })
-                      .join('\n')
-                : `$${lowerCasedEntityName} = ${entityName}::create($request->validated());`
-        };
-        
+    {     
+    $${lowerCasedEntityName} = ${entityName}::create($request->validated());   
         ${
             relations?.length
                 ? relations
                       ?.map((relation: any) => {
                           return relation.isManyToMany
-                              ? `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->attach($request->input("${relation.relationTable?.apiIdPlural}"));`
+                              ? controllerStoreTemplate.manyToMany(
+                                    relation,
+                                    entityName
+                                )
                               : relation.isOneToMany && relation.isParent
-                                ? `// Assuming '${relation.child.apiIdPlural}' is an array of comment data
-        if ($${relation.child.apiIdPlural} = $request->input('${relation.child.apiIdPlural}')) {
-            foreach ($${relation.child.apiIdPlural} as $${relation.child.apiIdSingular}Data) {
-                $${lowerCasedEntityName}->${relation.child.apiIdPlural}()->create($${relation.child.apiIdSingular}Data);
-            }
-        }`
-                                : ''
+                                ? controllerStoreTemplate.oneToManyAndParent(
+                                      relation,
+                                      entityName
+                                  )
+                                : relation.isOneToMany && relation.isChild
+                                  ? controllerStoreTemplate.oneToManyAndChild(
+                                        relation,
+                                        entityName
+                                    )
+                                  : controllerStoreTemplate.default(entityName)
                       })
                       .join('\n')
-                : ''
+                : `$${lowerCasedEntityName} = ${entityName}::create($request->validated());`
         }
         return response()->json($${lowerCasedEntityName}, 201);
     }
@@ -131,37 +123,32 @@ public function index(Request $request)
      */
     public function update(${entityName}FormRequest $request, $id){
         $${lowerCasedEntityName} = ${entityName}::findOrFail($id);
-        ${
-            relations?.length
-                ? relations
-                      .map((rel) => {
-                          if (rel.isOneToMany && rel.isChild) {
-                              return `
-                          $${rel.parent.apiIdSingular}Id = $request->input('${rel.parent.apiIdSingular}');
-                          $${lowerCasedEntityName}->update($request->validated());
-                        $${lowerCasedEntityName}->${rel.parent.apiIdSingular}_id = $${rel.parent.apiIdSingular}Id;
-                        $${lowerCasedEntityName}->save();
-                          `
-                          } else {
-                              return `$${lowerCasedEntityName}->update($request->validated());`
-                          }
-                      })
-                      .join('\n')
-                : `$${lowerCasedEntityName}->update($request->validated());`
-        }
-        
+        $${lowerCasedEntityName}->update($request->validated());
          ${
              relations?.length
                  ? relations
                        ?.map((relation: any) => {
                            return relation.isManyToMany
-                               ? `$${lowerCasedEntityName}->${relation.relationTable?.apiIdPlural}()->sync($request->input("${relation.relationTable?.apiIdPlural}"));`
+                               ? controllerUpdateTemplate.manyToMany(
+                                     relation,
+                                     entityName
+                                 )
                                : relation.isOneToMany && relation.isParent
-                                 ? ``
-                                 : ''
+                                 ? controllerUpdateTemplate.oneToManyAndParent(
+                                       relation,
+                                       entityName
+                                   )
+                                 : relation.isOneToMany && relation.isChild
+                                   ? controllerUpdateTemplate.oneToManyAndChild(
+                                         relation,
+                                         entityName
+                                     )
+                                   : controllerUpdateTemplate.default(
+                                         entityName
+                                     )
                        })
                        .join('\n')
-                 : ''
+                 : `${entityName}::update($request->validated());`
          }
         return response()->json($${lowerCasedEntityName});
     }

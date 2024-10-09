@@ -57,7 +57,7 @@ export function generateRelation(relation: any) {
     switch (relation.relationType.code) {
         case 'one-to-many':
             return relation.isChild
-                ? `$table->foreignId('${relation?.parent?.apiIdSingular}_id')->constrained('${relation?.parent?.apiIdPlural}')->onDelete("cascade");`
+                ? `$table->foreignId('${relation?.parent?.apiIdSingular}_id')->nullable()->constrained('${relation?.parent?.apiIdPlural}')->onDelete("cascade");`
                 : ''
 
         case 'many-to-many':

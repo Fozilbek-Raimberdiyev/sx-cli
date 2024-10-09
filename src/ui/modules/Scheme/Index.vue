@@ -329,7 +329,8 @@ function deleteTable(index: number) {
 }
 
 async function sendTables() {
-    console.log(tables.value)
+    // scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     try {
         isLoading.value = true;
         const pivots = generatePivotRelations(_.cloneDeep(tables.value));
@@ -377,11 +378,24 @@ onMounted(() => {
 </script>
 <template>
     <div>
-        <div v-if="isLoading"
-            class="absolute h-screen inset-0 flex justify-center items-center z-10 bg-[rgba(0,0,0,0.2)]">
-            <p-progress-spinner style="width: 50px; height: 50px" strokeWidth="8" fill="transparent"
-                animationDuration=".5s" aria-label="Custom ProgressSpinner"></p-progress-spinner>
-        </div>
+        <Transition name="slide-fade" mode="out-in">
+
+            <Teleport to="body" v-if="isLoading">
+                <!-- <div v-if="isLoading"
+                    class="fixed h-screen inset-0 flex flex-col justify-center items-center z-50 bg-[rgba(0,0,0,0.2)]">
+                    <p-progress-spinner style="width:20px; height: 20px" strokeWidth="8" fill="transparent"
+                        animationDuration=".5s" aria-label="Custom ProgressSpinner"></p-progress-spinner>
+                </div> -->
+
+                <div v-if="isLoading"
+                    class="max-h-[calc(100vh-64px)] fixed h-screen inset-0 flex flex-col justify-center items-center z-50 bg-[rgba(0,0,0,0.2)]"
+                    style="filter:  contrast(1.2) brightness(1.5)">
+                    <i class="bx bx-loader-alt text-lg animate-spin fixed top-1/2 left-1/2"></i>
+                    <video loop src="../../assets/videos/construction_loading.mp4" autoplay muted></video>
+                </div>
+            </Teleport>
+        </Transition>
+
         <div class="card">
             <div class="flex justify-end">
                 <p-button type="button" label="Add table" @click="toggleTableModal">
@@ -641,4 +655,16 @@ onMounted(() => {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* we will explain what these classes do next! */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+    transition: all 0.5s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+    opacity: 0;
+    transform: translateX(20px) perspective(50px) translate3d(0, 0, 0);
+}
+</style>
