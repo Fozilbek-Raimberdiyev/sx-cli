@@ -1,8 +1,14 @@
 import express, { Request, Response } from 'express'
+import { fork } from 'child_process'
 import path from 'path'
 import cors from 'cors'
 import _ from 'lodash'
 import router from './routes/index'
+const forked = fork('laravel.scheme.ts', [], { detached: true })
+forked.on('message', (msg: any) => {
+    console.log('msg', msg)
+})
+forked.send({ hello: 'Hello from parent process' })
 const app = express()
 
 app.use(cors({ origin: '*' }))
