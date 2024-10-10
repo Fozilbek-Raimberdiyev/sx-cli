@@ -64,8 +64,6 @@ async function buildScheme(req: Request, res: Response) {
             //     table.groupName,
             //     table.relations
             // )
-            // progress = progress + oneUnit;
-            // messages.push({ process: progress})
 
             // generateRoute(
             //     table.name,
@@ -74,17 +72,16 @@ async function buildScheme(req: Request, res: Response) {
             //     table.groupName,
             //     table.relations
             // )
-            generateVueComponent(
-                table.name,
-                data.projectPath,
-                table.groupName,
-                table.apiIdSingular,
-                table.apiIdPlural,
-                table.fields,
-                table.relations
-            )
-            progress = progress + oneUnit
-            sendProgressUpdate(progress * 10)
+            // generateVueComponent(
+            //     table.name,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.apiIdSingular,
+            //     table.apiIdPlural,
+            //     table.fields,
+            //     table.relations
+            // )
+            // progress = progress + oneUnit
             // generateVueRoute(
             //     table.name,
             //     table.apiIdPlural,
@@ -93,15 +90,15 @@ async function buildScheme(req: Request, res: Response) {
             //     table.apiIdSingular
             // )
         })
-        // generateAppVueContent(
-        //     tables.map((table: any) => {
-        //         return {
-        //             name: table.apiIdPlural,
-        //             groupName: table.groupName,
-        //         }
-        //     }),
-        //     data.projectPath
-        // )
+        generateAppVueContent(
+            tables.map((table: any) => {
+                return {
+                    name: table.apiIdPlural,
+                    groupName: table.groupName,
+                }
+            }),
+            data.projectPath
+        )
         // Process pivots
         data.pivots.forEach((pivot: any) => {
             // generatePivotMigration(pivot, data.projectPath)
@@ -123,4 +120,4 @@ const sendProgressUpdate = (progress: number) => {
     })
 }
 
-export { buildScheme,handleSchemeEvents }
+export { buildScheme, handleSchemeEvents }

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
 import inquirer from 'inquirer'
-import { execSync } from 'child_process'
+import { exec, execSync } from 'child_process'
 const program = new Command()
 import {
     tailwindReactSetup,
@@ -97,9 +97,23 @@ program
     .description('Building database tables')
     .action(async () => {
         const projectPath = process.cwd()
-        execSync(
-            'start http://localhost:3000/scheme?projectPath=' +
+        // run server if not running in port 3000, if running, open in browser
+        // check 3000 port is in use
+        execSync('npx kill-port 3000', {
+            stdio: 'inherit',
+            cwd: __dirname,
+        })
+        // console log with blue colors "Visit the site: http://localhost:3000/scheme?projectPath=" + projectPath
+        console.log(
+            '\x1b[34m%s\x1b[0m',
+            'Visit the site: http://localhost:3000/scheme?projectPath=' +
                 projectPath
+        )
+        exec(
+            'start http://localhost:3000/scheme?projectPath=' +
+                projectPath +
+                ' && npm run start',
+            { cwd: __dirname }
         )
     })
 

@@ -331,8 +331,6 @@ function deleteTable(index: number) {
 }
 
 async function sendTables() {
-    // scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     try {
         isLoading.value = true;
         const pivots = generatePivotRelations(_.cloneDeep(tables.value));
@@ -405,8 +403,8 @@ onMounted(() => {
 
                 <div v-if="isLoading"
                     class="max-h-[calc(100vh-64px)] fixed h-screen inset-0 flex flex-col justify-center items-center z-50">
-                    <!-- <i class="bx bx-loader-alt text-lg animate-spin fixed top-1/2 left-1/2 z-50"></i> -->
-                    <CRangeSlider :width="23" class="fixed  z-50"></CRangeSlider>
+                    <i class="bx bx-loader-alt text-lg animate-spin fixed top-1/2 left-1/2 z-50"></i>
+                    <!-- <CRangeSlider :width="23" class="fixed  z-50"></CRangeSlider> -->
                     <video style="filter:  contrast(1.2) brightness(1.5)" loop
                         src="../../assets/videos/construction_loading.mp4" autoplay muted></video>
 
