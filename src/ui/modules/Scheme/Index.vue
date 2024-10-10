@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import { useToast } from '../../services/toast.service'
+import CRangeSlider from "@/components/CRangeSlider.vue"
+import PMessage from "primevue/message"
 const { showError } = useToast()
 import _ from "lodash"
-import PProgressSpinner from 'primevue/progressspinner'
 import PButton from 'primevue/button'
 import PColumn from 'primevue/column'
 import PTag from 'primevue/tag'
@@ -21,6 +22,7 @@ const isLoading = ref<boolean>(false);
 const projectPath = new URLSearchParams(window.location.search).get(
     'projectPath'
 )
+const messages = ref<string[]>(['File created successfully', 'File updated successfully', 'File deleted successfully']);
 const isVisibleTableModal = ref(false)
 const isClickedUpdateTable = ref(false)
 const currentTableIndex = ref(0)
@@ -371,13 +373,27 @@ function handleRelationModeChange(e: any, index: number) {
         }
     }
 }
-
+const eventData = ref(null);
 onMounted(() => {
     getMigrationTypes()
+    const eventSource: EventSource = new EventSource('api/laravel/events/scheme');
+    // Ma'lumot kelganda ishlaydi
+    eventSource.onmessage = (event) => {
+        eventData.value = JSON.parse(event.data);
+        console.log(eventData.value);
+    };
+
+    // Xatolik bo'lsa ishlaydi
+    eventSource.onerror = (error) => {
+        console.error('EventSource failed:', error);
+        eventSource.close();
+    };
 })
 </script>
 <template>
     <div>
+
+
         <Transition name="slide-fade" mode="out-in">
 
             <Teleport to="body" v-if="isLoading">
@@ -388,10 +404,13 @@ onMounted(() => {
                 </div> -->
 
                 <div v-if="isLoading"
-                    class="max-h-[calc(100vh-64px)] fixed h-screen inset-0 flex flex-col justify-center items-center z-50 bg-[rgba(0,0,0,0.2)]"
-                    style="filter:  contrast(1.2) brightness(1.5)">
-                    <i class="bx bx-loader-alt text-lg animate-spin fixed top-1/2 left-1/2"></i>
-                    <video loop src="../../assets/videos/construction_loading.mp4" autoplay muted></video>
+                    class="max-h-[calc(100vh-64px)] fixed h-screen inset-0 flex flex-col justify-center items-center z-50">
+                    <!-- <i class="bx bx-loader-alt text-lg animate-spin fixed top-1/2 left-1/2 z-50"></i> -->
+                    <CRangeSlider :width="23" class="fixed  z-50"></CRangeSlider>
+                    <video style="filter:  contrast(1.2) brightness(1.5)" loop
+                        src="../../assets/videos/construction_loading.mp4" autoplay muted></video>
+
+
                 </div>
             </Teleport>
         </Transition>
