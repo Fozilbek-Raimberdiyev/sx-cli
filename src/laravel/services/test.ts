@@ -7,7 +7,8 @@ import { formatPhpFile } from '../../utils/prettier'
 export function generateMigration(
     table: any,
     projectPath: string,
-    fields: any[]
+    fields: any[],
+    index?: number
 ) {
     const migrationContent = `<?php
 
@@ -42,7 +43,7 @@ use Illuminate\\Support\\Facades\\Schema;
     const migrationPath = path.join(
         projectPath,
         'database/migrations',
-        `${generateTimeStampMigration()}_create_${table.apiIdPlural}_table.php`
+        `${generateTimeStampMigration(index)}_create_${table.apiIdPlural}_table.php`
     )
     ensureDirectoryExists(migrationPath)
     fs.writeFileSync(migrationPath, migrationContent)
@@ -69,7 +70,11 @@ export function generateRelation(relation: any) {
 }
 
 // Helper to generate pivot migration
-export function generatePivotMigration(pivot: any, projectPath: string) {
+export function generatePivotMigration(
+    pivot: any,
+    projectPath: string,
+    index: number
+) {
     const pivotMigrationContent = `<?php
 
 use Illuminate\\Database\\Migrations\\Migration;
@@ -93,7 +98,7 @@ return new class extends Migration
     const migrationPath = path.join(
         projectPath,
         'database/migrations',
-        `${generateTimeStampMigration()}_create_${pivot.name}_table.php`
+        `${generateTimeStampMigration(index)}_create_${pivot.name}_table.php`
     )
     fs.writeFileSync(migrationPath, pivotMigrationContent)
     formatPhpFile(migrationPath)

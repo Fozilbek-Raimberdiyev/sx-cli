@@ -1,23 +1,36 @@
-import { ensureDirectoryExists } from "../../utils/folder";
-import fs from "fs";
-import path from "path";
-import { replaceSlashes } from "../../utils/formatter";
-import { formatPhpFile } from "../../utils/prettier";
+import { ensureDirectoryExists } from '../../utils/folder'
+import fs from 'fs'
+import path from 'path'
+import { replaceSlashes } from '../../utils/formatter'
+import { formatPhpFile } from '../../utils/prettier'
 export function generateFormRequest(
-  entityName: string,
-  fields: { name: string; type: string; validationRules: string }[],
-  projectPath: string,
-  groupName: string = "/admin"
+    entityName: string,
+    fields: { name: string; type: string; validationRules: string }[],
+    projectPath: string,
+    groupName: string = '/admin',
+    relations?: any[]
 ) {
-  const formRequestPath = path.join(
-    projectPath,
-    "app",
-    "Http",
-    "Requests",
-    groupName,
-    `${entityName}FormRequest.php`
-  );
-  const template = `<?php
+    const rulesFields = relations
+        ?.map((relation) => {
+            return {
+                name:
+                    relation.isOneToMany && relation.isChild
+                        ? relation.parent.apiIdSingular + '_id'
+                        : '',
+                validationRules: 'nullable',
+            }
+        })
+        .concat(fields)
+        ?.filter((f) => f.name)
+    const formRequestPath = path.join(
+        projectPath,
+        'app',
+        'Http',
+        'Requests',
+        groupName,
+        `${entityName}FormRequest.php`
+    )
+    const template = `<?php
 
 namespace App\\Http\\Requests${replaceSlashes(groupName)};
 
@@ -43,9 +56,11 @@ class ${entityName}FormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            ${fields
-              .map((field) => `"${field.name}" => "${field.validationRules}"`)
-              .join(",\n")}
+            ${rulesFields
+                ?.map(
+                    (field) => `"${field.name}" => "${field.validationRules}"`
+                )
+                .join(',\n')}
         ];
     }
 
@@ -61,9 +76,9 @@ class ${entityName}FormRequest extends FormRequest
     }
 
 }
-`;
+`
 
-  ensureDirectoryExists(formRequestPath);
-  fs.writeFileSync(formRequestPath, template, "utf8");
-  formatPhpFile(formRequestPath);
+    ensureDirectoryExists(formRequestPath)
+    fs.writeFileSync(formRequestPath, template, 'utf8')
+    formatPhpFile(formRequestPath)
 }

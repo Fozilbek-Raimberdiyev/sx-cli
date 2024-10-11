@@ -23,6 +23,8 @@ export function generateVueComponent(
                     apiIdPlural: item.relationTable.apiIdPlural,
                     isManyToMany: item.isManyToMany,
                     isOneToMany: item.isOneToMany,
+                    parent: item.parent,
+                    child: item.child,
                 })
             } else if (item.isOneToMany && item.isChild) {
                 related.push({
@@ -32,6 +34,8 @@ export function generateVueComponent(
                     apiIdPlural: item.parent.apiIdPlural,
                     isManyToMany: item.isManyToMany,
                     isOneToMany: item.isOneToMany,
+                    parent: item.parent,
+                    child: item.child,
                 })
             }
         })
@@ -143,13 +147,18 @@ async function delete${capitalizeFirstLetter(apiIdSingular)}(id: number) {
                     ? '{}'
                     : 'null',
             isManyToMany: el.isManyToMany,
+            isOneToMany: el.isOneToMany,
+            isParent: el.isParent,
+            isChild: el.isChild,
+            parent: el.parent,
+            child: el.child,
             options: el.apiIdPlural,
             isVisible: el.isManyToMany
                 ? true
                 : el.isOneToMany && el.isParent
-                  ? true
+                  ? false
                   : el.isOneToMany && el.isChild
-                    ? false
+                    ? true
                     : true,
         })),
     ]
@@ -166,17 +175,28 @@ async function delete${capitalizeFirstLetter(apiIdSingular)}(id: number) {
   const isLoading = ref<boolean>(false);
   const formRef = ref();
   const formState:UnwrapRef<any> = reactive({
-  ${addOrUpdateFields
-      .filter((el: any) => el.isVisible)
-      .map((el: any) => {
-          return el.isVisible ? `${el.name} : ${el.value || 'null'}` : ''
-      })}
+  ${[
+      ...addOrUpdateFields
+          .filter((el: any) => el.isVisible)
+          .map((el: any) => {
+              return el.isVisible ? `${el.name} : ${el.value || 'null'}` : ''
+          }),
+  ]}
   });
 
   // create ${entityName}
   async function create${entityName}() {
     try {
     isLoading.value = true;
+    ${addOrUpdateFields
+        ?.map((field) => {
+            if (field.isOneToMany && field.isChild) {
+                return `
+            formState.${field.parent.apiIdSingular}_id = formState.${field.parent.apiIdSingular} || null;
+            `
+            }
+        })
+        .join('\n')}
   const res:AxiosResponse = await axios.post("/api${groupName.toLocaleLowerCase()}/${apiIdPlural}", formState);
   message.success("Успешно добавлено", 3, () => {
       router.go(-1)
@@ -274,7 +294,7 @@ isLoading.value = false;
             <p class="text-sm  max-md:max-w-full font-regular capitalize">
               ${capitalizeFirstLetter(el.name)}
             </p>
-            ${el.value === '{}' ? `<Select :field-names="{value: 'id', label: 'title'}" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : el.value === '[]' || el.isManyToMany ? `<Select :field-names="{value: 'id', label: 'title'}" mode="multiple" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : `<Input v-model:value="formState.${el.name}" class="mt-2" placeholder=""></Input>`}
+            ${el.value === '{}' ? `<Select :field-names="{value: 'id', label: '${fields.find((f) => f.isLabel)?.name}'}" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : el.value === '[]' || el.isManyToMany ? `<Select :field-names="{value: 'id', label: '${fields.find((f) => f.isLabel)?.name}'}" mode="multiple" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : `<Input v-model:value="formState.${el.name}" class="mt-2" placeholder=""></Input>`}
           </FormItem>
         </div>`
       })

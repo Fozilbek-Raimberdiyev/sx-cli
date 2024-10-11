@@ -19,7 +19,7 @@ export function generateController(
         if (item.isManyToMany || (item.isOneToMany && item.isParent)) {
             relatedTables.push(item.relationTable.apiIdPlural)
         } else if (item.isOneToMany && item.isChild) {
-            relatedTables.push(item.parent.apiIdSingular)
+            // relatedTables.push()
         }
     })
     const lowerCasedEntityName = entityName.toLowerCase()
@@ -113,7 +113,15 @@ public function index(Request $request)
      */
     public function show($id)
     {   
-       $${lowerCasedEntityName} = ${entityName}${relations?.length ? `::with(['${relatedTables.join(',')}'])->findOrFail($id);` : `::findOrFail($id);`}
+       $${lowerCasedEntityName} = ${entityName}${
+           relations?.length
+               ? `::with([${relatedTables
+                     .map((table) => {
+                         return `'${table}'`
+                     })
+                     .join(',')}])->findOrFail($id);`
+               : `::findOrFail($id);`
+       }
       
         return response()->json($${lowerCasedEntityName});
     }

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import { useToast } from '../../services/toast.service'
-import CRangeSlider from "@/components/CRangeSlider.vue"
-import PMessage from "primevue/message"
+import PRadioButton from "primevue/radiobutton"
 const { showError } = useToast()
 import _ from "lodash"
 import PButton from 'primevue/button'
@@ -17,6 +16,7 @@ import PDialog from 'primevue/dialog'
 import axios from 'axios'
 import { generatePivotRelations } from './helpers'
 import { relationModes, relationTypes, tablesMock } from './mock'
+import CRadio from '@/components/CRadio.vue';
 const tables = ref<any[]>(tablesMock)
 const isLoading = ref<boolean>(false);
 const projectPath = new URLSearchParams(window.location.search).get(
@@ -31,9 +31,20 @@ const tableFormState = reactive<any>({
     apiIdSingular: '',
     apiIdPlural: '',
     groupName: '',
+    deleteMode: '',
     relations: [],
     fields: [],
 })
+const deleteModes = ref([
+    {
+        name: 'Soft delete',
+        code: 'soft',
+    },
+    {
+        name: 'Hard delete',
+        code: 'hard',
+    },
+])
 const migrationTypes = ref([])
 function toggleTableModal() {
     isVisibleTableModal.value = !isVisibleTableModal.value
@@ -371,6 +382,15 @@ function handleRelationModeChange(e: any, index: number) {
         }
     }
 }
+
+function handleChangeLabel(index: number) {
+    const value = tableFormState.fields[index].isLabel
+    for (const field of tableFormState.fields) {
+        field.isLabel = false;
+    }
+    tableFormState.fields[index].isLabel = value;
+}
+
 const eventData = ref(null);
 onMounted(() => {
     getMigrationTypes()
@@ -395,20 +415,10 @@ onMounted(() => {
         <Transition name="slide-fade" mode="out-in">
 
             <Teleport to="body" v-if="isLoading">
-                <!-- <div v-if="isLoading"
-                    class="fixed h-screen inset-0 flex flex-col justify-center items-center z-50 bg-[rgba(0,0,0,0.2)]">
-                    <p-progress-spinner style="width:20px; height: 20px" strokeWidth="8" fill="transparent"
-                        animationDuration=".5s" aria-label="Custom ProgressSpinner"></p-progress-spinner>
-                </div> -->
-
                 <div v-if="isLoading"
-                    class="max-h-[calc(100vh-64px)] fixed h-screen inset-0 flex flex-col justify-center items-center z-50">
+                    class="fixed h-screen inset-0 flex flex-col justify-center items-center z-50 bg-[rgba(0,0,0,0.2)]">
                     <i class="bx bx-loader-alt text-lg animate-spin fixed top-1/2 left-1/2 z-50"></i>
                     <!-- <CRangeSlider :width="23" class="fixed  z-50"></CRangeSlider> -->
-                    <video style="filter:  contrast(1.2) brightness(1.5)" loop
-                        src="../../assets/videos/construction_loading.mp4" autoplay muted></video>
-
-
                 </div>
             </Teleport>
         </Transition>
@@ -525,6 +535,16 @@ onMounted(() => {
                                 v-model="tableFormState.groupName" aria-describedby="groupname" />
                         </div>
                     </div>
+                    <!-- delete mode -->
+                    <!-- <div class="col-span-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="font-regular" for="groupname">Delete mode</label>
+                            <p-select id="deleteMode" size="small" v-model="tableFormState.deleteMode" checkmark :options="deleteModes" :optionLabel="(mode: any) => mode.name"
+                                    :optionValue="(mode: any) => mode" placeholder="Select delete mode"
+                                    aria-describedby="deleteMode">
+                                </p-select>
+                        </div>
+                    </div> -->
                     <div class="col-span-12"></div>
                     <div v-show="isClickedUpdateTable"
                         class="col-span-12 grid grid-cols-12 gap-5 bg-gray-100 p-5 rounded-md relative pb-10"
@@ -589,7 +609,7 @@ onMounted(() => {
                     </div>
                 </div>
                 <PDivider></PDivider>
-                <div class="flex justify-end">
+                <div class="flex justify-end sticky top-10 z-10">
                     <p-button @click="createField" severity="contrast" type="button" label="Create field">
                         <template #icon>
                             <i class="bx bx-plus"></i>
@@ -597,9 +617,8 @@ onMounted(() => {
                     </p-button>
                 </div>
                 <div class="flex flex-col gap-5 mt-5">
-                    <div class="grid grid-cols-12 items-center gap-5" v-for="(field, index) in tableFormState.fields"
-                        :key="index">
-                        <div class="col-span-3">
+                    <div class="grid grid-cols-12 gap-5" v-for="(field, index) in tableFormState.fields" :key="index">
+                        <div class="col-span-2">
                             <div class="flex flex-col gap-2">
                                 <label class="font-regular" for="fieldname">Field name</label>
                                 <p-input size="small" id="fieldname" v-model="field.name"
@@ -619,6 +638,14 @@ onMounted(() => {
                                 <label for="nullable">Nullable</label>
                                 <p-toggle-switch type="text" id="nullable" v-model="field.isNullable"
                                     aria-describedby="isNullable" />
+                            </div>
+                        </div>
+                        <div class="col-span-1">
+                            <div class="flex flex-col gap-2">
+                                <span>Label</span>
+                                <CRadio @change="handleChangeLabel(index)" :value="true" label="Label"
+                                    :id="'field' + index" v-model="field.isLabel" name="isLabel">
+                                </CRadio>
                             </div>
                         </div>
                         <div class="col-span-3">

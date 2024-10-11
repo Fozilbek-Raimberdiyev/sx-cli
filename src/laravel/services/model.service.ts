@@ -3,6 +3,7 @@ import { ensureDirectoryExists } from '../../utils/folder'
 import path from 'path'
 import { replaceSlashes } from '../../utils/formatter'
 import { formatPhpFile } from '../../utils/prettier'
+import { response } from 'express'
 export function generateModel(
     modelName: string,
     fields: { name: string; type: string }[],
@@ -10,6 +11,17 @@ export function generateModel(
     groupName: string = '/admin',
     relations?: any[]
 ) {
+    const fillableFields = relations
+        ?.map((rel: any) => {
+            return {
+                name:
+                    rel.isOneToMany && rel.isChild
+                        ? rel.parent.apiIdSingular + '_id'
+                        : '',
+            }
+        })
+        .concat(fields)
+        ?.filter((f: any) => f.name)
     const modelPath = path.join(
         projectPath,
         'app',
@@ -36,7 +48,9 @@ class ${modelName} extends Model
 {
     use HasFactory;
      protected $fillable = [${
-         fields ? fields.map((field) => `"${field.name}"`).join(',') : ''
+         fields
+             ? fillableFields?.map((field) => `"${field.name}"`).join(',')
+             : ''
      }];
       \n
   ${

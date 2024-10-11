@@ -2,23 +2,12 @@ export const controllerStoreTemplate = {
     // one to many and child
     oneToManyAndChild: function (rel: any, entityName: string) {
         const lowerCasedEntityName = entityName.toLowerCase()
-        return `
-    $${rel.parent.apiIdSingular}Id = $request->input('${rel.parent.apiIdSingular}');
-    $${lowerCasedEntityName} = new ${entityName}($request->validated());
-  $${lowerCasedEntityName}->${rel.parent.apiIdSingular}_id = $${rel.parent.apiIdSingular}Id;
-  $${lowerCasedEntityName}->save();
-    `
+        return ``
     },
     // one to many and parent
     oneToManyAndParent: function (relation: any, entityName: string) {
-        const lowerCasedEntityName = entityName.toLowerCase()
-        return `
-        // Assuming '${relation.child.apiIdPlural}' is an array of comment data
-        if ($${relation.child.apiIdPlural} = $request->input('${relation.child.apiIdPlural}')) {
-            foreach ($${relation.child.apiIdPlural} as $${relation.child.apiIdSingular}Data) {
-                $${lowerCasedEntityName}->${relation.child.apiIdPlural}()->create($${relation.child.apiIdSingular}Data);
-            }
-        }`
+        // const lowerCasedEntityName = entityName.toLowerCase()
+        return ``
     },
     // many to many
     manyToMany: function (relation: any, entityName: string) {
@@ -37,10 +26,7 @@ export const controllerUpdateTemplate = {
     oneToManyAndChild: function (rel: any, entityName: string) {
         const lowerCasedEntityName = entityName.toLowerCase()
         return `
-        $${rel.parent.apiIdSingular}Id = $request->input('${rel.parent.apiIdSingular}');
-        $${lowerCasedEntityName}->update($request->validated());
-        $${lowerCasedEntityName}->${rel.parent.apiIdSingular}_id = $${rel.parent.apiIdSingular}Id;
-        $${lowerCasedEntityName}->save();
+
         `
     },
     manyToMany: function (relation: any, entityName: string) {
@@ -49,12 +35,6 @@ export const controllerUpdateTemplate = {
     },
     oneToManyAndParent: function (relation: any, entityName: string) {
         const lowerCasedEntityName = entityName.toLowerCase()
-        return `
-        // Assuming '${relation.child.apiIdPlural}' is an array of comment data
-        if ($${relation.child.apiIdPlural} = $request->input('${relation.child.apiIdPlural}')) {
-            foreach ($${relation.child.apiIdPlural} as $${relation.child.apiIdSingular}Data) {
-                $${lowerCasedEntityName}->${relation.child.apiIdPlural}()->attach($${relation.child.apiIdSingular}Data);
-            }
-        }`
+        return ``
     },
 }
