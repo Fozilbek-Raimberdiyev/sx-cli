@@ -10,7 +10,8 @@ export function generateVueComponent(
     apiIdSingular: string,
     apiIdPlural: string,
     fields: any[],
-    relations?: any[]
+    relations?: any[],
+    tables?: any[]
 ) {
     const related: any[] = []
     if (relations) {
@@ -25,6 +26,7 @@ export function generateVueComponent(
                     isOneToMany: item.isOneToMany,
                     parent: item.parent,
                     child: item.child,
+                    labelField: item.relationTable.labelField,
                 })
             } else if (item.isOneToMany && item.isChild) {
                 related.push({
@@ -36,6 +38,7 @@ export function generateVueComponent(
                     isOneToMany: item.isOneToMany,
                     parent: item.parent,
                     child: item.child,
+                    labelField: item.parent.labelField,
                 })
             }
         })
@@ -160,6 +163,7 @@ async function delete${capitalizeFirstLetter(apiIdSingular)}(id: number) {
                   : el.isOneToMany && el.isChild
                     ? true
                     : true,
+            relationTable: el.relationTable,
         })),
     ]
     const addOrUpdateTemplate = `
@@ -214,6 +218,15 @@ isLoading.value = false;
   async function update${entityName}() {
     try {
     isLoading.value = true;
+    ${addOrUpdateFields
+        ?.map((field) => {
+            if (field.isOneToMany && field.isChild) {
+                return `
+            formState.${field.parent.apiIdSingular}_id = formState.${field.parent.apiIdSingular} || null;
+            `
+            }
+        })
+        .join('\n')}
   const res:AxiosResponse = await axios.put("/api${groupName.toLocaleLowerCase()}/${apiIdPlural}/"  + route.params.id, formState);
   message.success("Успешно обновлено", 3, () => {
       router.go(-1)
@@ -289,12 +302,19 @@ isLoading.value = false;
   <div class="grid grid-cols-12 gap-4 px-5 mt-6 w-full">
   ${addOrUpdateFields
       .map((el) => {
+          const oneToManylabelField =
+              tables?.find((rel: any) => rel?.name == el?.parent?.name)
+                  ?.labelField || 'title'
+          const manyToManyLabelField =
+              tables?.find(
+                  (table: any) => table?.name == el?.relationTable?.name
+              )?.labelField || 'title'
           return `<div class="col-span-4 max-md:max-w-full" v-if="${el.isVisible}">
           <FormItem ref="${el.name}" name="${el.name}">
             <p class="text-sm  max-md:max-w-full font-regular capitalize">
               ${capitalizeFirstLetter(el.name)}
             </p>
-            ${el.value === '{}' ? `<Select :field-names="{value: 'id', label: '${fields.find((f) => f.isLabel)?.name}'}" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : el.value === '[]' || el.isManyToMany ? `<Select :field-names="{value: 'id', label: '${fields.find((f) => f.isLabel)?.name}'}" mode="multiple" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : `<Input v-model:value="formState.${el.name}" class="mt-2" placeholder=""></Input>`}
+            ${el.value === '{}' ? `<Select :field-names="{value: 'id', label: '${oneToManylabelField}'}" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : el.value === '[]' || el.isManyToMany ? `<Select :field-names="{value: 'id', label: '${manyToManyLabelField}'}" mode="multiple" :options="${el.options}List" v-model:value="formState.${el.name}" class="mt-2" placeholder="Select ${el.name}"></Select>` : `<Input v-model:value="formState.${el.name}" class="mt-2" placeholder=""></Input>`}
           </FormItem>
         </div>`
       })

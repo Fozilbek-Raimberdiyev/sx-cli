@@ -103,6 +103,7 @@ function addTable() {
                     apiIdSingular: tableFormState.apiIdSingular,
                     apiIdPlural: tableFormState.apiIdPlural,
                     groupName: tableFormState.groupName,
+                    labelField: tableFormState.labelField
                 },
             })
         }
@@ -131,9 +132,6 @@ function toggleUpdateTable(index: number) {
 
 function updateTable() {
     try {
-        tables.value[currentTableIndex.value] = {
-            ...tableFormState,
-        }
         for (const relation of tableFormState.relations) {
             relation.isOneToMany = relation.relationType?.code === 'one-to-many';
             relation.isManyToMany =
@@ -152,6 +150,7 @@ function updateTable() {
                         apiIdSingular: tableFormState.apiIdSingular,
                         apiIdPlural: tableFormState.apiIdPlural,
                         groupName: tableFormState.groupName,
+                        labelField: tableFormState.labelField
                     }
                     : _.cloneDeep(relation.relationTable)
                 : null
@@ -162,6 +161,7 @@ function updateTable() {
                         apiIdSingular: tableFormState.apiIdSingular,
                         apiIdPlural: tableFormState.apiIdPlural,
                         groupName: tableFormState.groupName,
+                        labelField: tableFormState.labelField
                     }
                     : _.cloneDeep(relation.relationTable)
                 : null
@@ -181,6 +181,7 @@ function updateTable() {
                             apiIdSingular: tableFormState.apiIdSingular,
                             apiIdPlural: tableFormState.apiIdPlural,
                             groupName: tableFormState.groupName,
+                            labelField: tableFormState.labelField
                         },
                         relationMode: relation.isOneToMany
                             ? relation.relationMode.code === 'parent'
@@ -216,6 +217,7 @@ function updateTable() {
                                         tableFormState.apiIdSingular,
                                     apiIdPlural: tableFormState.apiIdPlural,
                                     groupName: tableFormState.groupName,
+                                    labelField: tableFormState.labelField
                                 }
                                 : _.cloneDeep(relation.relationTable)
                             : null,
@@ -227,6 +229,7 @@ function updateTable() {
                                         tableFormState.apiIdSingular,
                                     apiIdPlural: tableFormState.apiIdPlural,
                                     groupName: tableFormState.groupName,
+                                    labelField: tableFormState.labelField
                                 }
                                 : _.cloneDeep(relation.relationTable)
                             : null,
@@ -240,6 +243,7 @@ function updateTable() {
                                 apiIdSingular: tableFormState.apiIdSingular,
                                 apiIdPlural: tableFormState.apiIdPlural,
                                 groupName: tableFormState.groupName,
+                                labelField: tableFormState.labelField
                             },
                             relationMode: relation.isOneToMany
                                 ? relation.relationMode.code === 'parent'
@@ -273,6 +277,7 @@ function updateTable() {
                                         apiIdPlural:
                                             tableFormState.apiIdPlural,
                                         groupName: tableFormState.groupName,
+                                        labelField: tableFormState.labelField
                                     }
                                     : _.cloneDeep(relation.relationTable)
                                 : null,
@@ -285,6 +290,7 @@ function updateTable() {
                                         apiIdPlural:
                                             tableFormState.apiIdPlural,
                                         groupName: tableFormState.groupName,
+                                        labelField: tableFormState.labelField
                                     }
                                     : _.cloneDeep(relation.relationTable)
                                 : null,
@@ -310,7 +316,12 @@ function updateTable() {
                 table.relations = [...filtered];
             }
         }
+
         isVisibleTableModal.value = false
+        tables.value[currentTableIndex.value] = {
+            ...tableFormState,
+        }
+        console.log(tables.value)
         Object.assign(tableFormState, {
             name: '',
             apiIdSingular: '',
@@ -319,6 +330,8 @@ function updateTable() {
             relations: [],
             fields: [],
         })
+
+
     } catch (e) {
         console.error(e)
     }
@@ -389,6 +402,7 @@ function handleChangeLabel(index: number) {
         field.isLabel = false;
     }
     tableFormState.fields[index].isLabel = value;
+    tableFormState.labelField = tableFormState.fields[index].name;
 }
 
 const eventData = ref(null);

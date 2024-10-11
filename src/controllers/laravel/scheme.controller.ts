@@ -20,8 +20,8 @@ async function buildScheme(req: Request, res: Response) {
             (req.body.tables.length + req.body.pivots.length) * jobCount
         const oneUnit = Math.ceil(100 / tasksCount / jobCount)
 
-        const data = req.body;
-        const tables = data.tables;
+        const data = req.body
+        const tables = data.tables
         if (!data.projectPath) {
             return res
                 .status(400)
@@ -43,35 +43,35 @@ async function buildScheme(req: Request, res: Response) {
         } = await import('../../vue')
 
         tables.forEach(async (table: any, index: number) => {
-            generateMigration(table, data.projectPath, table.fields, index)
-            generateModel(
-                table.name,
-                table.fields,
-                data.projectPath,
-                table.groupName,
-                table.relations
-            )
-            generateFormRequest(
-                table.name,
-                table.fields,
-                data.projectPath,
-                table.groupName,
-                table.relations
-            )
-            generateController(
-                table.name,
-                data.projectPath,
-                table.groupName,
-                table.relations
-            )
+            // generateMigration(table, data.projectPath, table.fields, index)
+            // generateModel(
+            //     table.name,
+            //     table.fields,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
+            // generateFormRequest(
+            //     table.name,
+            //     table.fields,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
+            // generateController(
+            //     table.name,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
 
-            generateRoute(
-                table.name,
-                table.apiIdPlural,
-                data.projectPath,
-                table.groupName,
-                table.relations
-            )
+            // generateRoute(
+            //     table.name,
+            //     table.apiIdPlural,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
             generateVueComponent(
                 table.name,
                 data.projectPath,
@@ -79,29 +79,29 @@ async function buildScheme(req: Request, res: Response) {
                 table.apiIdSingular,
                 table.apiIdPlural,
                 table.fields,
-                table.relations
+                table.relations,
+                tables
             )
-            progress = progress + oneUnit
-            generateVueRoute(
-                table.name,
-                table.apiIdPlural,
-                data.projectPath,
-                table.groupName,
-                table.apiIdSingular
-            )
+            // generateVueRoute(
+            //     table.name,
+            //     table.apiIdPlural,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.apiIdSingular
+            // )
         })
-        generateAppVueContent(
-            tables.map((table: any) => {
-                return {
-                    name: table.apiIdPlural,
-                    groupName: table.groupName,
-                }
-            }),
-            data.projectPath
-        )
+        // generateAppVueContent(
+        //     tables.map((table: any) => {
+        //         return {
+        //             name: table.apiIdPlural,
+        //             groupName: table.groupName,
+        //         }
+        //     }),
+        //     data.projectPath
+        // )
         // Process pivots
         data.pivots.forEach((pivot: any, index: number) => {
-            generatePivotMigration(pivot, data.projectPath, index + 10)
+            // generatePivotMigration(pivot, data.projectPath, index + 10)
         })
         // return  response with timeout
         return res.status(200).send({ success: true, data: req.body })
