@@ -5,7 +5,9 @@
       "./src/ui/**/*.{vue,js,ts,jsx,tsx}",
     ],
     theme: {
-      extend: {},
+      extend: {
+      },
     },
     plugins: [],
+    darkMode : "selector"
   }

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import { useToast } from '../../services/toast.service'
-import PRadioButton from "primevue/radiobutton"
-const { showError } = useToast()
+const { showError, showSuccess } = useToast()
 import _ from "lodash"
 import PButton from 'primevue/button'
 import PColumn from 'primevue/column'
@@ -302,6 +301,10 @@ function updateTable() {
 
         // update other tables
         for (const table of tables.value) {
+            const labelField = table.fields.find(
+                (item: any) => item.isLabel
+            );
+            table.labelField = labelField?.name;
             if (
                 table?.relations?.some(
                     (item: any) => item.relationTable?.name === tableFormState.name
@@ -364,7 +367,9 @@ async function sendTables() {
             projectPath,
         }
         const res = await axios.post('/api/laravel/build-scheme', body);
-        isLoading.value = false
+        isLoading.value = false;
+        tables.value = [];
+        showSuccess('Success', 'Build scheme successfully');
     } catch (e: any) {
         isLoading.value = false;
         console.error(e);

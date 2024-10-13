@@ -10,11 +10,13 @@
             >Test page</RouterLink
         >
     </div> -->
-    <MainLayout></MainLayout>
+    <!-- <MainLayout></MainLayout> -->
+     <Custom></Custom>
 </template>
 
 <script setup lang="ts">
 import MainLayout from '@/layouts/Default.vue'
+import Custom from './layouts/Custom.vue';
 </script>
 
 <style scoped></style>

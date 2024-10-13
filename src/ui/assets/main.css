@@ -5,4 +5,47 @@ body {
     font-family: 'Poppins', sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
 }
+
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f3f4f6;
+    --text-primary: #000000;
+    --text-secondary: #4b5563;
+    --accent-color: #3b82f6;
+  }
+  
+  [data-theme="dark"] {
+    --bg-primary: #1f2937;
+    --bg-secondary: #111827;
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+    --accent-color: #60a5fa;
+  }
+  
+  
+  .bg-primary {
+    background-color: var(--bg-primary);
+  }
+  
+  .bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+  
+  .text-primary {
+    color: var(--text-primary);
+  }
+  
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+  
+  .accent {
+    color: var(--accent-color);
+  }
+  
+  .bg-accent {
+    background-color: var(--accent-color);
+  }

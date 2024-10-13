@@ -27,6 +27,7 @@ export function generateVueComponent(
                     parent: item.parent,
                     child: item.child,
                     labelField: item.relationTable.labelField,
+                    relationTable: item.relationTable,
                 })
             } else if (item.isOneToMany && item.isChild) {
                 related.push({
@@ -39,6 +40,7 @@ export function generateVueComponent(
                     parent: item.parent,
                     child: item.child,
                     labelField: item.parent.labelField,
+                    relationTable: item.parent,
                 })
             }
         })
@@ -309,6 +311,13 @@ isLoading.value = false;
               tables?.find(
                   (table: any) => table?.name == el?.relationTable?.name
               )?.labelField || 'title'
+          console.log(
+              el,
+              'manyToManyLabelField',
+              tables?.find(
+                  (table: any) => table?.name == el?.relationTable?.name
+              )
+          )
           return `<div class="col-span-4 max-md:max-w-full" v-if="${el.isVisible}">
           <FormItem ref="${el.name}" name="${el.name}">
             <p class="text-sm  max-md:max-w-full font-regular capitalize">
