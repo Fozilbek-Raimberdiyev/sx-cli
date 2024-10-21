@@ -11,7 +11,7 @@ router.get('/migration-types', getMigrationTypes)
 
 // generate entity
 router.post('/create-entity', generateEnity)
-router.get('/events/scheme', handleSchemeEvents)
+// router.get('/events/scheme', handleSchemeEvents)
 router.post('/build-scheme', buildScheme)
 
 export default router

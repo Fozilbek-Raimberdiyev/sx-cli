@@ -2,7 +2,7 @@
 import { ref, onMounted, reactive } from 'vue'
 import { useToast } from '../../services/toast.service'
 const { showError, showSuccess } = useToast()
-import _ from "lodash"
+import _ from 'lodash'
 import PButton from 'primevue/button'
 import PColumn from 'primevue/column'
 import PTag from 'primevue/tag'
@@ -15,13 +15,13 @@ import PDialog from 'primevue/dialog'
 import axios from 'axios'
 import { generatePivotRelations } from './helpers'
 import { relationModes, relationTypes, tablesMock } from './mock'
-import CRadio from '@/components/CRadio.vue';
-const tables = ref<any[]>(tablesMock)
-const isLoading = ref<boolean>(false);
+import CRadio from '@/components/CRadio.vue'
+// const tables = ref<any[]>(tablesMock)
+const tables = ref<any[]>([])
+const isLoading = ref<boolean>(false)
 const projectPath = new URLSearchParams(window.location.search).get(
     'projectPath'
 )
-const messages = ref<string[]>(['File created successfully', 'File updated successfully', 'File deleted successfully']);
 const isVisibleTableModal = ref(false)
 const isClickedUpdateTable = ref(false)
 const currentTableIndex = ref(0)
@@ -66,7 +66,6 @@ async function getMigrationTypes() {
     }
 }
 
-
 function createField() {
     tableFormState.fields.push({
         name: '',
@@ -102,7 +101,7 @@ function addTable() {
                     apiIdSingular: tableFormState.apiIdSingular,
                     apiIdPlural: tableFormState.apiIdPlural,
                     groupName: tableFormState.groupName,
-                    labelField: tableFormState.labelField
+                    labelField: tableFormState.labelField,
                 },
             })
         }
@@ -132,36 +131,36 @@ function toggleUpdateTable(index: number) {
 function updateTable() {
     try {
         for (const relation of tableFormState.relations) {
-            relation.isOneToMany = relation.relationType?.code === 'one-to-many';
+            relation.isOneToMany = relation.relationType?.code === 'one-to-many'
             relation.isManyToMany =
-                relation.relationType?.code === 'many-to-many';
+                relation.relationType?.code === 'many-to-many'
             relation.isParent = relation.isOneToMany
                 ? relation.relationMode.code === 'parent'
-                : null;
+                : null
             relation.isChild = relation.isOneToMany
                 ? relation.relationMode.code === 'child'
-                : null;
+                : null
 
             relation.parent = relation.isOneToMany
                 ? relation.isParent
                     ? {
-                        name: tableFormState.name,
-                        apiIdSingular: tableFormState.apiIdSingular,
-                        apiIdPlural: tableFormState.apiIdPlural,
-                        groupName: tableFormState.groupName,
-                        labelField: tableFormState.labelField
-                    }
+                          name: tableFormState.name,
+                          apiIdSingular: tableFormState.apiIdSingular,
+                          apiIdPlural: tableFormState.apiIdPlural,
+                          groupName: tableFormState.groupName,
+                          labelField: tableFormState.labelField,
+                      }
                     : _.cloneDeep(relation.relationTable)
                 : null
             relation.child = relation.isOneToMany
                 ? relation.isChild
                     ? {
-                        name: tableFormState.name,
-                        apiIdSingular: tableFormState.apiIdSingular,
-                        apiIdPlural: tableFormState.apiIdPlural,
-                        groupName: tableFormState.groupName,
-                        labelField: tableFormState.labelField
-                    }
+                          name: tableFormState.name,
+                          apiIdSingular: tableFormState.apiIdSingular,
+                          apiIdPlural: tableFormState.apiIdPlural,
+                          groupName: tableFormState.groupName,
+                          labelField: tableFormState.labelField,
+                      }
                     : _.cloneDeep(relation.relationTable)
                 : null
             const relationIndex = tables.value?.findIndex(
@@ -180,22 +179,22 @@ function updateTable() {
                             apiIdSingular: tableFormState.apiIdSingular,
                             apiIdPlural: tableFormState.apiIdPlural,
                             groupName: tableFormState.groupName,
-                            labelField: tableFormState.labelField
+                            labelField: tableFormState.labelField,
                         },
                         relationMode: relation.isOneToMany
                             ? relation.relationMode.code === 'parent'
                                 ? {
-                                    name: 'Child',
-                                    code: 'child',
-                                }
+                                      name: 'Child',
+                                      code: 'child',
+                                  }
                                 : {
-                                    name: 'Parent',
-                                    code: 'parent',
-                                }
+                                      name: 'Parent',
+                                      code: 'parent',
+                                  }
                             : {
-                                name: 'Both',
-                                code: 'both',
-                            },
+                                  name: 'Both',
+                                  code: 'both',
+                              },
                         isOneToMany: relation.isOneToMany,
                         isManyToMany: relation.isManyToMany,
                         isChild: relation.isOneToMany
@@ -211,25 +210,25 @@ function updateTable() {
                         parent: relation.isOneToMany
                             ? relation.isParent
                                 ? {
-                                    name: tableFormState.name,
-                                    apiIdSingular:
-                                        tableFormState.apiIdSingular,
-                                    apiIdPlural: tableFormState.apiIdPlural,
-                                    groupName: tableFormState.groupName,
-                                    labelField: tableFormState.labelField
-                                }
+                                      name: tableFormState.name,
+                                      apiIdSingular:
+                                          tableFormState.apiIdSingular,
+                                      apiIdPlural: tableFormState.apiIdPlural,
+                                      groupName: tableFormState.groupName,
+                                      labelField: tableFormState.labelField,
+                                  }
                                 : _.cloneDeep(relation.relationTable)
                             : null,
                         child: relation.isOneToMany
                             ? relation.isChild
                                 ? {
-                                    name: tableFormState.name,
-                                    apiIdSingular:
-                                        tableFormState.apiIdSingular,
-                                    apiIdPlural: tableFormState.apiIdPlural,
-                                    groupName: tableFormState.groupName,
-                                    labelField: tableFormState.labelField
-                                }
+                                      name: tableFormState.name,
+                                      apiIdSingular:
+                                          tableFormState.apiIdSingular,
+                                      apiIdPlural: tableFormState.apiIdPlural,
+                                      groupName: tableFormState.groupName,
+                                      labelField: tableFormState.labelField,
+                                  }
                                 : _.cloneDeep(relation.relationTable)
                             : null,
                     })
@@ -242,18 +241,18 @@ function updateTable() {
                                 apiIdSingular: tableFormState.apiIdSingular,
                                 apiIdPlural: tableFormState.apiIdPlural,
                                 groupName: tableFormState.groupName,
-                                labelField: tableFormState.labelField
+                                labelField: tableFormState.labelField,
                             },
                             relationMode: relation.isOneToMany
                                 ? relation.relationMode.code === 'parent'
                                     ? {
-                                        name: 'Child',
-                                        code: 'child',
-                                    }
+                                          name: 'Child',
+                                          code: 'child',
+                                      }
                                     : {
-                                        name: 'Parent',
-                                        code: 'parent',
-                                    }
+                                          name: 'Parent',
+                                          code: 'parent',
+                                      }
                                 : { name: 'Both', code: 'both' },
                             isOneToMany: relation.isOneToMany,
                             isManyToMany: relation.isManyToMany,
@@ -270,27 +269,27 @@ function updateTable() {
                             parent: relation.isOneToMany
                                 ? relation.isParent
                                     ? {
-                                        name: tableFormState.name,
-                                        apiIdSingular:
-                                            tableFormState.apiIdSingular,
-                                        apiIdPlural:
-                                            tableFormState.apiIdPlural,
-                                        groupName: tableFormState.groupName,
-                                        labelField: tableFormState.labelField
-                                    }
+                                          name: tableFormState.name,
+                                          apiIdSingular:
+                                              tableFormState.apiIdSingular,
+                                          apiIdPlural:
+                                              tableFormState.apiIdPlural,
+                                          groupName: tableFormState.groupName,
+                                          labelField: tableFormState.labelField,
+                                      }
                                     : _.cloneDeep(relation.relationTable)
                                 : null,
                             child: relation.isOneToMany
                                 ? relation.isChild
                                     ? {
-                                        name: tableFormState.name,
-                                        apiIdSingular:
-                                            tableFormState.apiIdSingular,
-                                        apiIdPlural:
-                                            tableFormState.apiIdPlural,
-                                        groupName: tableFormState.groupName,
-                                        labelField: tableFormState.labelField
-                                    }
+                                          name: tableFormState.name,
+                                          apiIdSingular:
+                                              tableFormState.apiIdSingular,
+                                          apiIdPlural:
+                                              tableFormState.apiIdPlural,
+                                          groupName: tableFormState.groupName,
+                                          labelField: tableFormState.labelField,
+                                      }
                                     : _.cloneDeep(relation.relationTable)
                                 : null,
                         },
@@ -301,22 +300,24 @@ function updateTable() {
 
         // update other tables
         for (const table of tables.value) {
-            const labelField = table.fields.find(
-                (item: any) => item.isLabel
-            );
-            table.labelField = labelField?.name;
+            const labelField = table.fields.find((item: any) => item.isLabel)
+            table.labelField = labelField?.name
             if (
                 table?.relations?.some(
-                    (item: any) => item.relationTable?.name === tableFormState.name
+                    (item: any) =>
+                        item.relationTable?.name === tableFormState.name
                 ) &&
                 !tableFormState?.relations?.some(
                     (item: any) => item.relationTable?.name === table?.name
                 )
             ) {
-                const filtered = [...table?.relations]?.filter(
-                    (item) => item.relationTable?.name !== tableFormState.name
-                )?.filter((item) => item.relationTable)
-                table.relations = [...filtered];
+                const filtered = [...table?.relations]
+                    ?.filter(
+                        (item) =>
+                            item.relationTable?.name !== tableFormState.name
+                    )
+                    ?.filter((item) => item.relationTable)
+                table.relations = [...filtered]
             }
         }
 
@@ -324,7 +325,6 @@ function updateTable() {
         tables.value[currentTableIndex.value] = {
             ...tableFormState,
         }
-        console.log(tables.value)
         Object.assign(tableFormState, {
             name: '',
             apiIdSingular: '',
@@ -333,8 +333,6 @@ function updateTable() {
             relations: [],
             fields: [],
         })
-
-
     } catch (e) {
         console.error(e)
     }
@@ -345,11 +343,13 @@ function deleteTable(index: number) {
     for (const table of tables.value) {
         if (
             table.relations?.some(
-                (item: any) => item.relationTable?.name === tables.value[index]?.name
+                (item: any) =>
+                    item.relationTable?.name === tables.value[index]?.name
             )
         ) {
             const filtered = table.relations?.filter(
-                (item: any) => item.relationTable?.name !== tables.value[index]?.name
+                (item: any) =>
+                    item.relationTable?.name !== tables.value[index]?.name
             )
             table.relations = filtered
         }
@@ -359,21 +359,21 @@ function deleteTable(index: number) {
 
 async function sendTables() {
     try {
-        isLoading.value = true;
-        const pivots = generatePivotRelations(_.cloneDeep(tables.value));
+        isLoading.value = true
+        const pivots = generatePivotRelations(_.cloneDeep(tables.value))
         const body = {
             tables: _.cloneDeep(tables.value),
             pivots: pivots,
             projectPath,
         }
-        const res = await axios.post('/api/laravel/build-scheme', body);
-        isLoading.value = false;
-        tables.value = [];
-        showSuccess('Success', 'Build scheme successfully');
+        const res = await axios.post('/api/laravel/build-scheme', body)
+        isLoading.value = false
+        tables.value = []
+        showSuccess('Success', 'Application successfully configured')
     } catch (e: any) {
-        isLoading.value = false;
-        console.error(e);
-        showError('Error', e.response.data.message);
+        isLoading.value = false
+        console.error(e)
+        showError('Error', e.response.data.message)
     }
 }
 
@@ -404,55 +404,53 @@ function handleRelationModeChange(e: any, index: number) {
 function handleChangeLabel(index: number) {
     const value = tableFormState.fields[index].isLabel
     for (const field of tableFormState.fields) {
-        field.isLabel = false;
+        field.isLabel = false
     }
-    tableFormState.fields[index].isLabel = value;
-    tableFormState.labelField = tableFormState.fields[index].name;
+    tableFormState.fields[index].isLabel = value
+    tableFormState.labelField = tableFormState.fields[index].name
 }
 
-const eventData = ref(null);
 onMounted(() => {
     getMigrationTypes()
-    const eventSource: EventSource = new EventSource('api/laravel/events/scheme');
-    // Ma'lumot kelganda ishlaydi
-    eventSource.onmessage = (event) => {
-        eventData.value = JSON.parse(event.data);
-        console.log(eventData.value);
-    };
-
-    // Xatolik bo'lsa ishlaydi
-    eventSource.onerror = (error) => {
-        console.error('EventSource failed:', error);
-        eventSource.close();
-    };
 })
 </script>
 <template>
     <div>
-
-
         <Transition name="slide-fade" mode="out-in">
-
             <Teleport to="body" v-if="isLoading">
-                <div v-if="isLoading"
-                    class="fixed h-screen inset-0 flex flex-col justify-center items-center z-50 bg-[rgba(0,0,0,0.2)]">
-                    <i class="bx bx-loader-alt text-lg animate-spin fixed top-1/2 left-1/2 z-50"></i>
-                    <!-- <CRangeSlider :width="23" class="fixed  z-50"></CRangeSlider> -->
+                <div
+                    v-if="isLoading"
+                    class="fixed h-screen inset-0 flex flex-col justify-center items-center z-50 bg-[rgba(0,0,0,0.2)]"
+                >
+                    <i
+                        class="bx bx-loader-alt text-lg animate-spin fixed top-1/2 left-1/2 z-50"
+                    ></i>
                 </div>
             </Teleport>
         </Transition>
 
         <div class="card">
             <div class="flex justify-end">
-                <p-button type="button" label="Add table" @click="toggleTableModal">
+                <p-button
+                    type="button"
+                    label="Add table"
+                    @click="toggleTableModal"
+                >
                     <template #icon>
                         <i class="bx bx-plus"></i>
                     </template>
                 </p-button>
             </div>
-            <PTable highlight removableSort :value="tables" tableStyle="min-width: 50rem">
+            <PTable
+                highlight
+                removableSort
+                :value="tables"
+                tableStyle="min-width: 50rem"
+            >
                 <template #empty>
-                    <div class="text-center flex justify-center items-center gap-2">
+                    <div
+                        class="text-center flex justify-center items-center gap-2"
+                    >
                         <i class="bx bx-search-alt"></i>
                         <span>No tables found.</span>
                     </div>
@@ -462,42 +460,79 @@ onMounted(() => {
                     <template #body="{ index }"> {{ index + 1 }} </template>
                 </p-column>
                 <p-column sortable field="name" header="Name"></p-column>
-                <p-column sortable field="apiIdSingular" header="Singular"></p-column>
-                <p-column sortable field="apiIdPlural" header="Plural"></p-column>
+                <p-column
+                    sortable
+                    field="apiIdSingular"
+                    header="Singular"
+                ></p-column>
+                <p-column
+                    sortable
+                    field="apiIdPlural"
+                    header="Plural"
+                ></p-column>
                 <p-column sortable field="groupName" header="Group"></p-column>
                 <p-column sortable field="relations" header="Relations">
                     <template #body="slotProps">
-                        <div v-if="
-                            slotProps.data.relations?.filter(
-                                (relation: any) => relation.relationTable
-                            )?.length
-                        ">
-                            <div class="flex items-center gap-1 mt-1" v-for="relation in slotProps.data.relations?.filter(
-                                (relation: any) =>
-                                    relation.relationTable ||
-                                    relation.relationType
-                            )">
-                                <p-tag :value="relation.relationType?.name" severity="info"></p-tag>
-                                <i v-if="relation.relationTable" class="bx bx-right-arrow-alt"></i>
-                                <p-tag :value="relation.relationTable?.name" severity="info"></p-tag>
+                        <div
+                            v-if="
+                                slotProps.data.relations?.filter(
+                                    (relation: any) => relation.relationTable
+                                )?.length
+                            "
+                        >
+                            <div
+                                class="flex items-center gap-1 mt-1"
+                                v-for="relation in slotProps.data.relations?.filter(
+                                    (relation: any) =>
+                                        relation.relationTable ||
+                                        relation.relationType
+                                )"
+                            >
+                                <p-tag
+                                    :value="relation.relationType?.name"
+                                    severity="info"
+                                ></p-tag>
+                                <i
+                                    v-if="relation.relationTable"
+                                    class="bx bx-right-arrow-alt"
+                                ></i>
+                                <p-tag
+                                    :value="relation.relationTable?.name"
+                                    severity="info"
+                                ></p-tag>
                             </div>
                         </div>
                         <div v-else>
-                            <p-tag value="No relations" severity="warning"></p-tag>
+                            <p-tag
+                                value="No relations"
+                                severity="warning"
+                            ></p-tag>
                         </div>
                     </template>
                 </p-column>
                 <p-column style="width: 4rem" field="actions" header="Actions">
                     <template #body="{ item, index }">
                         <div class="flex items-center gap-2">
-                            <p-button style="width: 100px" @click="deleteTable(index)" size="small" label="Delete"
-                                severity="danger" rounded>
+                            <p-button
+                                style="width: 100px"
+                                @click="deleteTable(index)"
+                                size="small"
+                                label="Delete"
+                                severity="danger"
+                                rounded
+                            >
                                 <template #icon>
                                     <i class="bx bx-trash"></i>
                                 </template>
                             </p-button>
-                            <p-button style="width: 100px" @click="toggleUpdateTable(index)" size="small" label="Edit"
-                                severity="success" rounded>
+                            <p-button
+                                style="width: 100px"
+                                @click="toggleUpdateTable(index)"
+                                size="small"
+                                label="Edit"
+                                severity="success"
+                                rounded
+                            >
                                 <template #icon>
                                     <i class="bx bx-edit"></i>
                                 </template>
@@ -507,12 +542,23 @@ onMounted(() => {
                 </p-column>
             </PTable>
             <div class="flex justify-end mt-8 gap-1" v-if="tables?.length">
-                <p-button label="Reset" @click="" size="small" severity="secondary">
+                <p-button
+                    label="Reset"
+                    @click=""
+                    size="small"
+                    severity="secondary"
+                >
                     <template #icon>
                         <i class="bx bx-reset"></i>
                     </template>
                 </p-button>
-                <p-button label="Generate scheme" size="small" :loading="isLoading" severity="info" @click="sendTables">
+                <p-button
+                    label="Generate scheme"
+                    size="small"
+                    :loading="isLoading"
+                    severity="info"
+                    @click="sendTables"
+                >
                     <template #icon>
                         <i class="bx bx-save"></i>
                     </template>
@@ -521,37 +567,66 @@ onMounted(() => {
         </div>
 
         <!-- table modal -->
-        <p-dialog v-model:visible="isVisibleTableModal" modal
-            :header="isClickedUpdateTable ? 'Update table' : 'Create table'" :style="{ width: '85rem' }">
+        <p-dialog
+            v-model:visible="isVisibleTableModal"
+            modal
+            :header="isClickedUpdateTable ? 'Update table' : 'Create table'"
+            :style="{ width: '85rem' }"
+        >
             <div class="mt-6">
                 <div class="grid grid-cols-12 gap-5 mb-6">
                     <div class="col-span-6">
                         <div class="flex flex-col gap-2">
-                            <label class="font-regular" for="tablename">Table name</label>
-                            <p-input size="small" id="tablename" v-model="tableFormState.name"
-                                aria-describedby="tablename" />
+                            <label class="font-regular" for="tablename"
+                                >Table name</label
+                            >
+                            <p-input
+                                size="small"
+                                id="tablename"
+                                v-model="tableFormState.name"
+                                aria-describedby="tablename"
+                            />
                         </div>
                     </div>
 
                     <div class="col-span-6">
                         <div class="flex flex-col gap-2">
-                            <label class="font-regular" for="apiidsingular">Api ID (singular)</label>
-                            <p-input size="small" id="apiidsingular" v-model="tableFormState.apiIdSingular"
-                                aria-describedby="apiidsingular-table" />
+                            <label class="font-regular" for="apiidsingular"
+                                >Api ID (singular)</label
+                            >
+                            <p-input
+                                size="small"
+                                id="apiidsingular"
+                                v-model="tableFormState.apiIdSingular"
+                                aria-describedby="apiidsingular-table"
+                            />
                         </div>
                     </div>
                     <div class="col-span-6">
                         <div class="flex flex-col gap-2">
-                            <label class="font-regular" for="apiidplural">Api ID (plural)</label>
-                            <p-input size="small" id="apiidplural" v-model="tableFormState.apiIdPlural"
-                                aria-describedby="apiidplural-table" />
+                            <label class="font-regular" for="apiidplural"
+                                >Api ID (plural)</label
+                            >
+                            <p-input
+                                size="small"
+                                id="apiidplural"
+                                v-model="tableFormState.apiIdPlural"
+                                aria-describedby="apiidplural-table"
+                            />
                         </div>
                     </div>
                     <div class="col-span-6">
                         <div class="flex flex-col gap-2">
-                            <label class="font-regular" for="groupname">Group name(path)</label>
-                            <p-input placeholder="ex: /admin/users" size="small" id="groupName"
-                                v-model="tableFormState.groupName" aria-describedby="groupname" />
+                            <label class="font-regular" for="groupname"
+                                >Group name(path)</label
+                            >
+                            <p-input
+                                placeholder="ex: /admin/users"
+                                size="small"
+                                id="groupName"
+                                v-model="tableFormState.groupName"
+                                aria-describedby="groupname"
+                            />
                         </div>
                     </div>
                     <!-- delete mode -->
@@ -565,127 +640,233 @@ onMounted(() => {
                         </div>
                     </div> -->
                     <div class="col-span-12"></div>
-                    <div v-show="isClickedUpdateTable"
+                    <div
+                        v-show="isClickedUpdateTable"
                         class="col-span-12 grid grid-cols-12 gap-5 bg-gray-100 p-5 rounded-md relative pb-10"
-                        v-for="(relation, index) in tableFormState.relations" :key="index">
+                        v-for="(relation, index) in tableFormState.relations"
+                        :key="index"
+                    >
                         <div class="col-span-4">
                             <div class="flex flex-col gap-2">
-                                <label class="font-regular" for="relation">Relation type</label>
-                                <p-select id="relation" size="small" v-model="relation.relationType" checkmark @change="
-                                    handleRelationTypeChange($event, index)
-                                    " :options="relationTypes" :optionLabel="(relation: any) => relation.name"
-                                    :optionValue="(relation: any) => relation" placeholder="Select relation type"
-                                    aria-describedby="relation">
+                                <label class="font-regular" for="relation"
+                                    >Relation type</label
+                                >
+                                <p-select
+                                    id="relation"
+                                    size="small"
+                                    v-model="relation.relationType"
+                                    checkmark
+                                    @change="
+                                        handleRelationTypeChange($event, index)
+                                    "
+                                    :options="relationTypes"
+                                    :optionLabel="
+                                        (relation: any) => relation.name
+                                    "
+                                    :optionValue="(relation: any) => relation"
+                                    placeholder="Select relation type"
+                                    aria-describedby="relation"
+                                >
                                 </p-select>
                             </div>
                         </div>
                         <div class="col-span-4">
                             <div class="flex flex-col gap-2">
-                                <label class="font-regular" for="tablename">Relation table</label>
-                                <p-select checkmark id="tablename" :optionLabel="(option: any) => option.name"
-                                    :optionValue="(option: any) => option" size="small" v-model="relation.relationTable"
-                                    :options="tables?.filter(
-                                        (table) =>
-                                            table.apiIdSingular !==
-                                            tableFormState.apiIdSingular
-                                    )
-                                        " placeholder="Select table" aria-describedby="tablename">
+                                <label class="font-regular" for="tablename"
+                                    >Relation table</label
+                                >
+                                <p-select
+                                    checkmark
+                                    id="tablename"
+                                    :optionLabel="(option: any) => option.name"
+                                    :optionValue="(option: any) => option"
+                                    size="small"
+                                    v-model="relation.relationTable"
+                                    :options="
+                                        tables?.filter(
+                                            (table) =>
+                                                table.apiIdSingular !==
+                                                tableFormState.apiIdSingular
+                                        )
+                                    "
+                                    placeholder="Select table"
+                                    aria-describedby="tablename"
+                                >
                                 </p-select>
                             </div>
                         </div>
                         <div class="col-span-3">
                             <div class="flex flex-col gap-2">
-                                <label class="font-regular" for="tablename">Relation mode</label>
-                                <p-select @change="
-                                    handleRelationModeChange($event, index)
-                                    " checkmark id="relationMode" size="small" v-model="relation.relationMode"
-                                    :options="relationModes?.filter(
-                                        (mode) => relation.relationType?.code === 'one-to-many' ? mode?.code !== 'both' : mode
-                                    )" placeholder="Select relation mode" aria-describedby="relation mode"
-                                    :optionLabel="(option: any) => option.name" :optionValue="(option: any) => option">
+                                <label class="font-regular" for="tablename"
+                                    >Relation mode</label
+                                >
+                                <p-select
+                                    @change="
+                                        handleRelationModeChange($event, index)
+                                    "
+                                    checkmark
+                                    id="relationMode"
+                                    size="small"
+                                    v-model="relation.relationMode"
+                                    :options="
+                                        relationModes?.filter((mode) =>
+                                            relation.relationType?.code ===
+                                            'one-to-many'
+                                                ? mode?.code !== 'both'
+                                                : mode
+                                        )
+                                    "
+                                    placeholder="Select relation mode"
+                                    aria-describedby="relation mode"
+                                    :optionLabel="(option: any) => option.name"
+                                    :optionValue="(option: any) => option"
+                                >
                                 </p-select>
                             </div>
                         </div>
                         <div class="add-button absolute right-1 top-1">
-                            <button class="p-1 bg-gray-100 rounded-md" @click="
-                                tableFormState.relations.splice(index, 1)
-                                " type="button">
-                                <i class="bx bx-x cursor-pointer text-lg text-red-500"></i>
+                            <button
+                                class="p-1 bg-gray-100 rounded-md"
+                                @click="
+                                    tableFormState.relations.splice(index, 1)
+                                "
+                                type="button"
+                            >
+                                <i
+                                    class="bx bx-x cursor-pointer text-lg text-red-500"
+                                ></i>
                             </button>
                         </div>
                     </div>
                     <div class="col-span-12" v-show="isClickedUpdateTable">
                         <div class="flex justify-end">
-                            <button class="p-1 bg-gray-100 rounded-md" @click="
-                                tableFormState.relations.push({
-                                    relationType: null,
-                                    relationTable: null,
-                                })
-                                " type="button">
-                                <i class="bx bx-plus cursor-pointer text-lg text-green-500"></i>
+                            <button
+                                class="p-1 bg-gray-100 rounded-md"
+                                @click="
+                                    tableFormState.relations.push({
+                                        relationType: null,
+                                        relationTable: null,
+                                    })
+                                "
+                                type="button"
+                            >
+                                <i
+                                    class="bx bx-plus cursor-pointer text-lg text-green-500"
+                                ></i>
                             </button>
                         </div>
                     </div>
                 </div>
                 <PDivider></PDivider>
                 <div class="flex justify-end sticky top-10 z-10">
-                    <p-button @click="createField" severity="contrast" type="button" label="Create field">
+                    <p-button
+                        @click="createField"
+                        severity="contrast"
+                        type="button"
+                        label="Create field"
+                    >
                         <template #icon>
                             <i class="bx bx-plus"></i>
                         </template>
                     </p-button>
                 </div>
                 <div class="flex flex-col gap-5 mt-5">
-                    <div class="grid grid-cols-12 gap-5" v-for="(field, index) in tableFormState.fields" :key="index">
+                    <div
+                        class="grid grid-cols-12 gap-5"
+                        v-for="(field, index) in tableFormState.fields"
+                        :key="index"
+                    >
                         <div class="col-span-2">
                             <div class="flex flex-col gap-2">
-                                <label class="font-regular" for="fieldname">Field name</label>
-                                <p-input size="small" id="fieldname" v-model="field.name"
-                                    aria-describedby="fieldname" />
+                                <label class="font-regular" for="fieldname"
+                                    >Field name</label
+                                >
+                                <p-input
+                                    size="small"
+                                    id="fieldname"
+                                    v-model="field.name"
+                                    aria-describedby="fieldname"
+                                />
                             </div>
                         </div>
                         <div class="col-span-3">
                             <div class="flex flex-col gap-2">
-                                <label for="fieldname">Select the type of the field</label>
-                                <p-select editable :options="migrationTypes" placeholder="Select field type"
-                                    style="height: 40px" v-model="field.type" aria-describedby="field type">
+                                <label for="fieldname"
+                                    >Select the type of the field</label
+                                >
+                                <p-select
+                                    editable
+                                    :options="migrationTypes"
+                                    placeholder="Select field type"
+                                    style="height: 40px"
+                                    v-model="field.type"
+                                    aria-describedby="field type"
+                                >
                                 </p-select>
                             </div>
                         </div>
                         <div class="col-span-1">
                             <div class="flex flex-col gap-2">
                                 <label for="nullable">Nullable</label>
-                                <p-toggle-switch type="text" id="nullable" v-model="field.isNullable"
-                                    aria-describedby="isNullable" />
+                                <p-toggle-switch
+                                    type="text"
+                                    id="nullable"
+                                    v-model="field.isNullable"
+                                    aria-describedby="isNullable"
+                                />
                             </div>
                         </div>
                         <div class="col-span-1">
                             <div class="flex flex-col gap-2">
                                 <span>Label</span>
-                                <CRadio @change="handleChangeLabel(index)" :value="true" label="Label"
-                                    :id="'field' + index" v-model="field.isLabel" name="isLabel">
+                                <CRadio
+                                    @change="handleChangeLabel(index)"
+                                    :value="true"
+                                    label="Label"
+                                    :id="'field' + index"
+                                    v-model="field.isLabel"
+                                    name="isLabel"
+                                >
                                 </CRadio>
                             </div>
                         </div>
                         <div class="col-span-3">
                             <div class="flex flex-col gap-2">
-                                <label class="font-regular" for="validationRules">Validation rules</label>
-                                <p-input size="small" id="validationRules" v-model="field.validationRules"
-                                    aria-describedby="validation rules" />
+                                <label
+                                    class="font-regular"
+                                    for="validationRules"
+                                    >Validation rules</label
+                                >
+                                <p-input
+                                    size="small"
+                                    id="validationRules"
+                                    v-model="field.validationRules"
+                                    aria-describedby="validation rules"
+                                />
                             </div>
                         </div>
                         <div class="col-span-2">
                             <div class="flex flex-col gap-2">
                                 <label class="font-regular">Actions</label>
                                 <div class="flex gap-1">
-                                    <p-button @click="deleteField(index)" class="w-full" type="button" label="Delete"
-                                        severity="danger">
+                                    <p-button
+                                        @click="deleteField(index)"
+                                        class="w-full"
+                                        type="button"
+                                        label="Delete"
+                                        severity="danger"
+                                    >
                                         <template #icon>
                                             <i class="bx bx-trash"></i>
                                         </template>
                                     </p-button>
-                                    <p-button @click="resetField(index)" class="w-full" type="button" label="Reset"
-                                        severity="warning">
+                                    <p-button
+                                        @click="resetField(index)"
+                                        class="w-full"
+                                        type="button"
+                                        label="Reset"
+                                        severity="warning"
+                                    >
                                         <template #icon>
                                             <i class="bx bx-refresh"></i>
                                         </template>
@@ -696,18 +877,35 @@ onMounted(() => {
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
-                    <p-button size="small" type="button" severity="secondary" label="Reset">
+                    <p-button
+                        size="small"
+                        type="button"
+                        severity="secondary"
+                        label="Reset"
+                    >
                         <template #icon>
                             <i class="bx bx-reset"></i>
                         </template>
                     </p-button>
-                    <p-button v-if="isClickedUpdateTable" size="small" type="button" label="Update"
-                        @click="updateTable">
+                    <p-button
+                        v-if="isClickedUpdateTable"
+                        size="small"
+                        type="button"
+                        label="Update"
+                        @click="updateTable"
+                    >
                         <template #icon>
                             <i class="bx bx-save"></i>
                         </template>
                     </p-button>
-                    <p-button @click="addTable" severity="info" v-else size="small" type="button" label="Save">
+                    <p-button
+                        @click="addTable"
+                        severity="info"
+                        v-else
+                        size="small"
+                        type="button"
+                        label="Save"
+                    >
                         <template #icon>
                             <i class="bx bx-save"></i>
                         </template>
