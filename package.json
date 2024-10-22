@@ -5,6 +5,7 @@
   "description": "Laravel va Vue frameworklaridagi monolith arxitektura loyihalarni boshqarish uchun mo'ljallangan CLI tool",
   "license": "MIT",
   "private": false,
+  "type": "module",
   "scripts": {
     "build": "vite build && tsc",
     "start": "node dist/server.js",

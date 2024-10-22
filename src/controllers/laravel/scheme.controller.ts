@@ -64,13 +64,13 @@ async function buildScheme(req: Request, res: Response) {
             //     table.relations
             // )
 
-            generateRoute(
-                table.name,
-                table.apiIdPlural,
-                data.projectPath,
-                table.groupName,
-                table.relations
-            )
+            // generateRoute(
+            //     table.name,
+            //     table.apiIdPlural,
+            //     data.projectPath,
+            //     table.groupName,
+            //     table.relations
+            // )
             // generateVueComponent(
             //     table.name,
             //     data.projectPath,
@@ -81,13 +81,13 @@ async function buildScheme(req: Request, res: Response) {
             //     table.relations,
             //     tables
             // )
-            // generateVueRoute(
-            //     table.name,
-            //     table.apiIdPlural,
-            //     data.projectPath,
-            //     table.groupName,
-            //     table.apiIdSingular
-            // )
+            generateVueRoute(
+                table.name,
+                table.apiIdPlural,
+                data.projectPath,
+                table.groupName,
+                table.apiIdSingular
+            )
         })
         // generateAppVueContent(
         //     tables.map((table: any) => {
