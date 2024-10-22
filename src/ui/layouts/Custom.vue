@@ -2,7 +2,9 @@
 import { ref, onMounted, onUnmounted, watch, provide } from 'vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppHeader from '@/components/AppHeader.vue'
-import Toast from 'primevue/toast';
+import Toast from 'primevue/toast'
+// @ts-ignore
+import VueSplitView from 'vue-split-view'
 const isSidebarExpanded = ref(true)
 const sidebarWidth = ref(256)
 const isResizing = ref(false)
@@ -13,12 +15,6 @@ provide('currentTheme', currentTheme)
 const toggleSidebar = () => {
     isSidebarExpanded.value = !isSidebarExpanded.value
     sidebarWidth.value = isSidebarExpanded.value ? 256 : 64
-}
-
-const startResize = (event: MouseEvent) => {
-    isResizing.value = true
-    document.addEventListener('mousemove', resize)
-    document.addEventListener('mouseup', stopResize)
 }
 
 const resize = (event: MouseEvent) => {
@@ -37,7 +33,10 @@ const stopResize = () => {
 
 const switchTheme = (newTheme: string) => {
     if (newTheme === 'system') {
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+            .matches
+            ? 'dark'
+            : 'light'
         currentTheme.value = systemTheme
     } else {
         currentTheme.value = newTheme
@@ -68,23 +67,50 @@ watch(
 </script>
 
 <template>
-    <div class="flex h-screen" :data-theme="currentTheme">
-        <AppSidebar :style="{ width: `${sidebarWidth}px` }" class="text-white transition-all duration-300 relative"
-            :is-expanded="isSidebarExpanded" @toggle="toggleSidebar" />
-        <div class="w-1 cursor-col-resize absolute h-full" :style="{ left: `${sidebarWidth}px` }"
-            @mousedown="startResize"></div>
-        <div class="flex flex-col flex-grow">
-            <AppHeader :current-theme="currentTheme" @switch-theme="switchTheme" />
-            <main class="flex-grow p-6 overflow-auto">
-            <Toast></Toast>
-                <RouterView></RouterView>
-            </main>
-        </div>
+    <div class="h-screen">
+        <VueSplitView
+            a-init="250px"
+            a-min="50px"
+            a-max="400px"
+            direction="horizontal"
+        >
+            <template #A>
+                <AppSidebar
+                    class="text-white transition-all duration-300 relative"
+                    :is-expanded="isSidebarExpanded"
+                    @toggle="toggleSidebar"
+                />
+            </template>
+            <template #B>
+                <div class="flex flex-col flex-grow">
+                    <AppHeader
+                        :current-theme="currentTheme"
+                        @switch-theme="switchTheme"
+                    />
+                    <main class="flex-grow p-6 overflow-auto">
+                        <Toast></Toast>
+                        <router-view v-slot="{ Component }">
+                            <transition name="page">
+                                <component :is="Component" />
+                            </transition>
+                        </router-view>
+                    </main>
+                </div>
+            </template>
+        </VueSplitView>
     </div>
 </template>
 
 <style>
-.cursor-col-resize {
-    cursor: col-resize;
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.4s;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+  filter: blur(5px);
 }
 </style>

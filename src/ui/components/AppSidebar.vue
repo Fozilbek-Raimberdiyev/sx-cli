@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
+// @ts-ignore
+import VueSplitView from 'vue-split-view'
 const props = defineProps<{
     isExpanded: boolean
 }>()
@@ -71,7 +71,7 @@ const emit = defineEmits<{
                 </li>
                 <li>
                     <RouterLink
-                        to="/entity"
+                        to="/logs"
                         class="p-2 w-full text-left text-primary hover:bg-accent rounded"
                         :class="{ 'justify-center': !isExpanded }"
                     >
@@ -83,3 +83,19 @@ const emit = defineEmits<{
         </nav>
     </aside>
 </template>
+
+<style scoped>
+aside li {
+  @apply px-2 py-1;
+}
+li:has(.router-link-active), li:has(.router-link-exact-active) {
+    @apply bg-[#10b981]  rounded ; 
+}
+li, a {
+    @apply cursor-pointer transition ease-linear duration-300;
+}
+li .router-link-active,
+li .router-link-exact-active {
+    @apply  text-white;
+}
+</style>

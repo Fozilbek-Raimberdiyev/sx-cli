@@ -16,8 +16,8 @@ import axios from 'axios'
 import { generatePivotRelations } from './helpers'
 import { relationModes, relationTypes, tablesMock } from './mock'
 import CRadio from '@/components/CRadio.vue'
-// const tables = ref<any[]>(tablesMock)
-const tables = ref<any[]>([])
+const tables = ref<any[]>(tablesMock)
+// const tables = ref<any[]>([])
 const isLoading = ref<boolean>(false)
 const projectPath = new URLSearchParams(window.location.search).get(
     'projectPath'
