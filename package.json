@@ -5,11 +5,12 @@
   "description": "Laravel va Vue frameworklaridagi monolith arxitektura loyihalarni boshqarish uchun mo'ljallangan CLI tool",
   "license": "MIT",
   "private": false,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "vite build && tsc",
     "start": "node dist/server.js",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "serve": "ts-node --esm src/server.ts",
     "devClient": "vite",
     "prettier": "prettier",
     "optimize": "vite optimize"
@@ -31,8 +32,8 @@
     "lodash": "^4.17.21",
     "primeicons": "^7.0.0",
     "primevue": "^4.0.7",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.2",
+    "ts-node": "10.8.2",
+    "typescript": "^5.6.3",
     "vue": "^3.5.11",
     "vue-router": "^4.4.5",
     "vue-split-view": "^1.0.0"
