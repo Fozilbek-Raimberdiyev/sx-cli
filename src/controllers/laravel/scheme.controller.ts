@@ -42,45 +42,45 @@ async function buildScheme(req: Request, res: Response) {
         } = await import('../../vue')
 
         tables.forEach(async (table: any, index: number) => {
-            // generateMigration(table, data.projectPath, table.fields, index)
-            // generateModel(
-            //     table.name,
-            //     table.fields,
-            //     data.projectPath,
-            //     table.groupName,
-            //     table.relations
-            // )
-            // generateFormRequest(
-            //     table.name,
-            //     table.fields,
-            //     data.projectPath,
-            //     table.groupName,
-            //     table.relations
-            // )
-            // generateController(
-            //     table.name,
-            //     data.projectPath,
-            //     table.groupName,
-            //     table.relations
-            // )
+            generateMigration(table, data.projectPath, table.fields, index)
+            generateModel(
+                table.name,
+                table.fields,
+                data.projectPath,
+                table.groupName,
+                table.relations
+            )
+            generateFormRequest(
+                table.name,
+                table.fields,
+                data.projectPath,
+                table.groupName,
+                table.relations
+            )
+            generateController(
+                table.name,
+                data.projectPath,
+                table.groupName,
+                table.relations
+            )
 
-            // generateRoute(
-            //     table.name,
-            //     table.apiIdPlural,
-            //     data.projectPath,
-            //     table.groupName,
-            //     table.relations
-            // )
-            // generateVueComponent(
-            //     table.name,
-            //     data.projectPath,
-            //     table.groupName,
-            //     table.apiIdSingular,
-            //     table.apiIdPlural,
-            //     table.fields,
-            //     table.relations,
-            //     tables
-            // )
+            generateRoute(
+                table.name,
+                table.apiIdPlural,
+                data.projectPath,
+                table.groupName,
+                table.relations
+            )
+            generateVueComponent(
+                table.name,
+                data.projectPath,
+                table.groupName,
+                table.apiIdSingular,
+                table.apiIdPlural,
+                table.fields,
+                table.relations,
+                tables
+            )
             generateVueRoute(
                 table.name,
                 table.apiIdPlural,
@@ -89,18 +89,18 @@ async function buildScheme(req: Request, res: Response) {
                 table.apiIdSingular
             )
         })
-        // generateAppVueContent(
-        //     tables.map((table: any) => {
-        //         return {
-        //             name: table.apiIdPlural,
-        //             groupName: table.groupName,
-        //         }
-        //     }),
-        //     data.projectPath
-        // )
+        generateAppVueContent(
+            tables.map((table: any) => {
+                return {
+                    name: table.apiIdPlural,
+                    groupName: table.groupName,
+                }
+            }),
+            data.projectPath
+        )
         // Process pivots
         data.pivots.forEach((pivot: any, index: number) => {
-            // generatePivotMigration(pivot, data.projectPath, index + 10)
+            generatePivotMigration(pivot, data.projectPath, index + 10)
         })
         // return  response with timeout
         return res.status(200).send({ success: true, data: req.body })
@@ -108,15 +108,6 @@ async function buildScheme(req: Request, res: Response) {
         console.error(e)
         return res.status(500).send({ success: false, error: e })
     }
-}
-
-const sendProgressUpdate = (progress: number) => {
-    const message = JSON.stringify({ progress })
-    clients.forEach((client) => {
-        console.log('before write')
-        client.write(`data: ${message}\n\n`)
-        console.log('after write', message)
-    })
 }
 
 export { buildScheme, handleSchemeEvents }

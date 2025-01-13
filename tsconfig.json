@@ -1,14 +1,15 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es6",
+        "lib": ["es2020"],
+        "esModuleInterop": true,
+        "module": "CommonJS",        // ES2022 o'rniga CommonJS ishlatamiz
+        "moduleResolution": "node",
+        "target": "es2022",
         "outDir": "./dist",
         "rootDir": "./src",
         "strict": true,
-        "strictFunctionTypes": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
         "baseUrl": ".",
+        "skipLibCheck": true,
         "paths": {
             "@/*": ["src/ui/*"]
         }

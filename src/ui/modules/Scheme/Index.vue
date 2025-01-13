@@ -16,9 +16,11 @@ import axios from 'axios'
 import { generatePivotRelations } from './helpers'
 import { relationModes, relationTypes, tablesMock } from './mock'
 import CRadio from '@/components/CRadio.vue'
+axios.defaults.baseURL = 'http://localhost:3000'
 const tables = ref<any[]>(tablesMock)
-// const tables = ref<any[]>([])
+// const tables = ref<any[]>([])    
 const isLoading = ref<boolean>(false)
+// @ts-expect-error
 const projectPath = new URLSearchParams(window.location.search).get(
     'projectPath'
 )
@@ -511,7 +513,7 @@ onMounted(() => {
                     </template>
                 </p-column>
                 <p-column style="width: 4rem" field="actions" header="Actions">
-                    <template #body="{ item, index }">
+                    <template #body="{ data, index }">
                         <div class="flex items-center gap-2">
                             <p-button
                                 style="width: 100px"

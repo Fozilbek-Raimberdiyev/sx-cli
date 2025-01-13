@@ -311,13 +311,6 @@ isLoading.value = false;
               tables?.find(
                   (table: any) => table?.name == el?.relationTable?.name
               )?.labelField || 'title'
-          console.log(
-              el,
-              'manyToManyLabelField',
-              tables?.find(
-                  (table: any) => table?.name == el?.relationTable?.name
-              )
-          )
           return `<div class="col-span-4 max-md:max-w-full" v-if="${el.isVisible}">
           <FormItem ref="${el.name}" name="${el.name}">
             <p class="text-sm  max-md:max-w-full font-regular capitalize">
